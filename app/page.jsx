@@ -35,7 +35,7 @@ export default async function Home() {
       <div className='flex justify-evenly items-stretch grow'>
         <div className=' w-60 absolutes top-0 left-0 h-full'>
           <h3 className='p-8 pb-2 text-xl font-bold'>Files</h3>
-          {categories.map(category => (
+          {categories?.map(category => (
             <div
               key={category}
               className='m-4 ml-0 pl-8 hover:text-gray-600 cursor-pointer text-base flex items-center'
