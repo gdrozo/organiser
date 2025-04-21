@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+.active-tab {
+  @apply bg-white cursor-default;
+}
+
+.inactive-tab {
+  @apply bg-[#f2e9f5] rounded-t-none;
+}
+
+.tabs > button:last-child {
+  border-bottom-right-radius: 0 !important;
+}
+
+.tabs-container :first-child + * {
+  @apply rounded-bl-none;
+}
