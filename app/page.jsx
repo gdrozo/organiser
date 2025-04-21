@@ -7,6 +7,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { SignedIn } from '@clerk/nextjs'
+import { redirect } from 'next/navigation'
 
 import Tabs, { Tab } from './components/Tabs'
 import Ask from './components/Ask'
@@ -16,7 +17,9 @@ export default async function Home() {
 
   try {
     categories = await GetCategories()
-  } catch (e) {}
+  } catch (e) {
+    redirect('/auth')
+  }
 
   return (
     <div className='h-screen w-screen relative flex flex-col bg-gradient-to-br from-[#F4EFFA] to-[#ecd3e3]'>

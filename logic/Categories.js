@@ -5,7 +5,10 @@ import db from '@/logic/firebaseAdmin'
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
-const REDIRECT_URI = process.env.REDIRECT_URI
+const REDIRECT_URI =
+  process.env.ENV === 'dev'
+    ? process.env.DEV_REDIRECT_URI
+    : process.env.REDIRECT_URI
 const FOLDER_NAME = process.env.GOOGLE_DRIVE_FOLDER_NAME
 
 const googleAuth = new google.auth.OAuth2(
