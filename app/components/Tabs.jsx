@@ -21,7 +21,9 @@ function Tabs({ children, defaultTab }) {
               onClick={() => tabClicked(index)}
               className={
                 'text-black shadow-none h-auto z-10 px-7 rounded-lg flex justify-center items-center ' +
-                (selectedTab === index ? 'active-tab' : 'inactive-tab')
+                (selectedTab === index ? 'active-tab' : 'inactive-tab') +
+                ' ' +
+                child.props.className
               }
             >
               {child.props.title}
@@ -58,7 +60,7 @@ export function Tab({ children, title }) {
         children.length &&
         children.length > 0 &&
         children.map &&
-        children.map((child, index) => <div>{child}</div>)}
+        children.map((child, index) => <div key={index}>{child}</div>)}
       {children && !children.length && children}
     </>
   )

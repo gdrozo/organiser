@@ -1,12 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
 export default function Home() {
   const [isAuthorized, setIsAuthorized] = useState(false)
-  const [fileName, setFileName] = useState('')
-  const [content, setContent] = useState('')
 
   const handleAuth = async () => {
     const response = await fetch('/api/auth/url')
@@ -23,9 +20,16 @@ export default function Home() {
   }, [])
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Google Drive Editor</h1>
-      <Button onClick={handleAuth}>Authorize Google Drive</Button>
+    <div className='h-screen w-screen flex flex-col justify-center items-center | bg-gradient-primary'>
+      <h1 className='text-4xl font-bold text-blue-950'>
+        Connect Your Google Drive Account
+      </h1>
+      <button
+        className='px-12 py-3 rounded-2xl font-extrabold m-5 bg-black text-white cursor-pointer'
+        onClick={handleAuth}
+      >
+        Authorize Google Drive
+      </button>
     </div>
   )
 }

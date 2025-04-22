@@ -22,7 +22,8 @@ export default async function Home() {
   }
 
   return (
-    <div className='h-screen w-screen relative flex flex-col bg-gradient-to-br from-[#F4EFFA] to-[#ecd3e3]'>
+    <div className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-gradient-primary'>
+      {/* Header */}
       <div className='w-screen flex justify-center items-center'>
         <header className='flex justify-between items-center py-2 px-4 grow bg-white m-4 rounded-xl'>
           <h1 className='text-3xl font-bold'>Organizer</h1>
@@ -35,35 +36,16 @@ export default async function Home() {
           </SignedIn>
         </header>
       </div>
+
       <div className='flex justify-evenly items-stretch grow'>
-        <div className=' w-60 absolutes top-0 left-0 h-full'>
+        {/* */}
+        {/* Left sidebar */}
+        <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
           <h3 className='p-8 pb-2 text-xl font-bold'>Files</h3>
-          {categories?.map(category => (
-            <div
-              key={category}
-              className='m-4 ml-0 pl-8 hover:text-gray-600 cursor-pointer text-base flex items-center'
-            >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                className='lucide lucide-library-big-icon lucide-library-big size-4 '
-              >
-                <rect width='8' height='18' x='3' y='3' rx='1' />
-                <path d='M7 3v18' />
-                <path d='M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z' />
-              </svg>
-              <div className=''>{category}</div>
-            </div>
-          ))}
+          <Categories categories={categories} />
         </div>
-        <div className='grow flex flex-col m-4 '>
+
+        <div className='grow flex flex-col m-4 max-w-[97vw]'>
           {/* tabs */}
           <Tabs defaultTab={0}>
             <Tab title='Write'>
@@ -75,8 +57,8 @@ export default async function Home() {
                     </h1>
                   </div>
                 </header>
-                <main className='flex flex-col justify-center items-center'>
-                  <div className='w-screen max-w-3xl'>
+                <main className='flex justify-center items-center'>
+                  <div className='grow max-w-3xl'>
                     <TextInput categories={categories} />
                   </div>
                 </main>
@@ -85,9 +67,43 @@ export default async function Home() {
             <Tab title='Ask'>
               <Ask />
             </Tab>
+            <Tab title='categories' className='block lg:hidden'>
+              <Categories categories={categories} />
+            </Tab>
           </Tabs>
         </div>
       </div>
     </div>
+  )
+}
+
+function Categories({ categories }) {
+  return (
+    <>
+      {categories?.map(category => (
+        <div
+          key={category}
+          className='m-4 ml-0 pl-8 hover:text-gray-600 cursor-pointer text-base flex items-center'
+        >
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            width='24'
+            height='24'
+            viewBox='0 0 24 24'
+            fill='none'
+            stroke='currentColor'
+            strokeWidth='2'
+            strokeLinecap='round'
+            strokeLinejoin='round'
+            className='lucide lucide-library-big-icon lucide-library-big size-4 '
+          >
+            <rect width='8' height='18' x='3' y='3' rx='1' />
+            <path d='M7 3v18' />
+            <path d='M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z' />
+          </svg>
+          <div className=''>{category}</div>
+        </div>
+      ))}
+    </>
   )
 }
