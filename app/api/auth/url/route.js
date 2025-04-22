@@ -26,7 +26,9 @@ export async function GET() {
       prompt: 'consent', // Force re-consent to refresh token
     })
 
-    return new Response(JSON.stringify({ authUrl }), { status: 200 })
+    return new Response(JSON.stringify({ authUrl, REDIRECT_URI }), {
+      status: 200,
+    })
   } catch (error) {
     console.error('Error generating auth URL:', error)
     return new Response(

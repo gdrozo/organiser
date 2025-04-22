@@ -7,7 +7,8 @@ export default function Home() {
 
   const handleAuth = async () => {
     const response = await fetch('/api/auth/url')
-    const { authUrl } = await response.json()
+    const { authUrl, REDIRECT_URI } = await response.json()
+    alert(REDIRECT_URI)
     window.location.href = authUrl // Redirect the user to Google's authorization page
   }
 
