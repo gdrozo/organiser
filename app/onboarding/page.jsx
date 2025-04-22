@@ -15,7 +15,7 @@ function page() {
         }
       >
         <div className='h-screen w-screen min-h-screen min-w-screen flex flex-col justify-center items-center'>
-          <h1 className='text-4xl font-bold text-blue-950'>
+          <h1 className='text-4xl font-bold text-blue-950 px-4 text-center'>
             Login to use the app
           </h1>
           <button

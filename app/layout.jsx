@@ -13,7 +13,11 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang='en'>
-        <body className={inter.className + ' h-screen w-screen'}>
+        <body
+          className={
+            inter.className + ' h-dvh w-dvw overflow-hidden bg-gradient-primary'
+          }
+        >
           {children}
         </body>
       </html>

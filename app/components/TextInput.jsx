@@ -6,7 +6,6 @@ import { Textarea } from '@/components/ui/textarea'
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
-import { useRouter } from 'next/navigation'
 
 const options = {
   keys: ['name'], // Fields to search in the data
@@ -14,10 +13,6 @@ const options = {
 }
 
 export default function TextInput({ categories }) {
-  const router = useRouter()
-
-  if (categories === undefined) router.push('/auth')
-
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/classify', // Points to the updated server-side chat handler
   })

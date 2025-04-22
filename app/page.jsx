@@ -22,7 +22,7 @@ export default async function Home() {
   }
 
   return (
-    <div className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-gradient-primary'>
+    <div className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent'>
       {/* Header */}
       <div className='w-screen flex justify-center items-center'>
         <header className='flex justify-between items-center py-2 px-4 grow bg-white m-4 rounded-xl'>
