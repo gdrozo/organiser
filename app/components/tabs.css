@@ -1,11 +1,11 @@
 @import 'tailwindcss';
 
 .active-tab {
-  @apply bg-white cursor-default;
+  @apply bg-transparent cursor-default;
 }
 
 .inactive-tab {
-  @apply bg-[#f2e9f5] rounded-t-none;
+  @apply bg-transparent;
 }
 
 .tabs > button:last-child {

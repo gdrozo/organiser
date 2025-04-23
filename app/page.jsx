@@ -25,7 +25,7 @@ export default async function Home() {
     <div className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent'>
       {/* Header */}
       <div className='w-screen flex justify-center items-center'>
-        <header className='flex justify-between items-center py-2 px-4 grow bg-white m-4 rounded-xl'>
+        <header className='flex justify-between items-center py-2 px-4 grow bg-white/70 m-4 rounded-xl'>
           <h1 className='text-3xl font-bold'>Organizer</h1>
           <SignedOut>
             <SignInButton />
@@ -45,16 +45,19 @@ export default async function Home() {
           <Categories categories={categories} />
         </div>
 
-        <div className='grow flex flex-col m-4 max-w-[97vw]'>
+        <div className='grow flex flex-col m-4 max-w-[9 7vw]'>
           {/* tabs */}
           <Tabs defaultTab={0}>
             <Tab title='Write'>
-              <div className='bg-white rounded-xl grow p-10'>
+              <div className='bg-transparent rounded-xl grow px-10 py-4'>
                 <header className='flex justify-center'>
                   <div className='container mx-auto'>
-                    <h1 className='text-2xl font-bold text-center py-4'>
+                    <h1 className='text-2xl font-bold text-center pt-4'>
                       Text Classification
                     </h1>
+                    <p className='text-center pb-4 pt-1'>
+                      Input your text and have it categorize by the AI.
+                    </p>
                   </div>
                 </header>
                 <main className='flex justify-center items-center'>
@@ -67,7 +70,7 @@ export default async function Home() {
             <Tab title='Ask'>
               <Ask />
             </Tab>
-            <Tab title='categories' className='block lg:hidden'>
+            <Tab title='Categories' className='block lg:hidden'>
               <Categories categories={categories} />
             </Tab>
           </Tabs>

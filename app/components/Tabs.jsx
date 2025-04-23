@@ -14,13 +14,35 @@ function Tabs({ children, defaultTab }) {
     <>
       <div className='h-10 flex justify-start '>
         <div className='flex relative tabs tabs-container'>
-          <div className='absolute bg-white rounded-lg -bottom-10 top-1/2 left-0 right-0'></div>
+          <div
+            className='absolute bg-white rounded-t-lg -bottom-3 top-0 w-28 transition-all duration-300 ease-in-out'
+            style={{ left: 7 * selectedTab + 'rem' }}
+          >
+            <div
+              className={
+                'absolute rounded-bl-[0.6rem] bottom-3 -right-4 h-4 w-4 bg-transparent' +
+                ' ' +
+                (selectedTab === children.length - 1
+                  ? ''
+                  : 'shadow-[-3px_3px_0px_3px_white]')
+              }
+            ></div>
+            <div
+              className={
+                'absolute rounded-br-[0.6rem]  bottom-3 -left-4 h-4 w-4 bg-transparent transition-all duration-300 ease-in-out' +
+                ' ' +
+                (selectedTab === 0 ? '' : 'shadow-[3px_3px_0px_3px_white]')
+              }
+            ></div>
+          </div>
+
           {children.map((child, index) => (
             <Button
               key={index}
               onClick={() => tabClicked(index)}
               className={
-                'text-black shadow-none h-auto z-10 px-7 rounded-lg flex justify-center items-center ' +
+                'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-28 rounded-b-none' +
+                ' ' +
                 (selectedTab === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +
                 child.props.className
