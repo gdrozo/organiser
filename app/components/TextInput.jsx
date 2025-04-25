@@ -13,6 +13,8 @@ const options = {
 }
 
 export default function TextInput({ categories }) {
+  const [ogHeight, setOgHeight] = useState(0)
+
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/classify', // Points to the updated server-side chat handler
   })
@@ -28,6 +30,35 @@ export default function TextInput({ categories }) {
   const [results, setResults] = useState([])
 
   const submitRef = useRef()
+
+  useEffect(() => {
+    setOgHeight(window.visualViewport.height)
+
+    const onResize = () => {}
+
+    window.addEventListener('resize', onResize)
+
+    return window.removeEventListener('resize', onResize)
+  }, [])
+
+  const onFocusIn = () => {
+    setTimeout(() => {
+      const height = window.visualViewport.height
+      //const height = '400'
+
+      const container = document.getElementById('container')
+      container.style.height = `${height}px`
+      container.style.minHeight = `${height}px`
+      container.style.maxHeight = `${height}px`
+    }, 250)
+  }
+
+  const onFocusOut = () => {
+    const container = document.getElementById('container')
+    container.style.height = `${ogHeight}px`
+    container.style.minHeight = `${ogHeight}px`
+    container.style.maxHeight = `${ogHeight}px`
+  }
 
   useEffect(() => {
     document.getElementById('prompt').focus()
@@ -119,11 +150,13 @@ export default function TextInput({ categories }) {
             onChange={interceptInputChange}
             disabled={status !== 'ready'}
             id='prompt'
+            onFocus={onFocusIn}
+            onBlur={onFocusOut}
           />
           <Button
             ref={submitRef}
             type='submit'
-            className='py-2 px-4 rounded-md cursor-pointer'
+            className='py-2 px-4 rounded-md cursor-pointer h-9 max-h-9'
             disabled={true}
           >
             Classify

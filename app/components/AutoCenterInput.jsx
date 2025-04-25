@@ -24,18 +24,16 @@ const AutoCenterInput = ({ className = '', ...props }) => {
     setTimeout(() => {
       setSt(st + '\nDelta: ' + window.visualViewport.height)
 
-      const container = document.getElementById('container')
-      container.style.height = `${window.visualViewport.height}px`
-      container.style.minHeight = `${window.visualViewport.height}px`
-      container.style.maxHeight = `${window.visualViewport.height}px`
+      const height = window.visualViewport.height
+      //const height = '400'
 
-      const hContainer = document.getElementById('h-container')
-      hContainer.style.height = `${window.visualViewport.height}px`
-      hContainer.style.minHeight = `${window.visualViewport.height}px`
-      hContainer.style.maxHeight = `${window.visualViewport.height}px`
+      const container = document.getElementById('container')
+      container.style.height = `${height}px`
+      container.style.minHeight = `${height}px`
+      container.style.maxHeight = `${height}px`
 
       setResized(resized + '\nRes: ' + container.style.maxHeight)
-    }, 200)
+    }, 250)
   }
 
   const onFocusOut = () => {
@@ -43,11 +41,6 @@ const AutoCenterInput = ({ className = '', ...props }) => {
     container.style.height = `${ogHeight}px`
     container.style.minHeight = `${ogHeight}px`
     container.style.maxHeight = `${ogHeight}px`
-
-    const hContainer = document.getElementById('h-container')
-    hContainer.style.height = `${ogHeight}px`
-    hContainer.style.minHeight = `${ogHeight}px`
-    hContainer.style.maxHeight = `${ogHeight}px`
 
     setKh('Restored: ' + ogHeight)
   }

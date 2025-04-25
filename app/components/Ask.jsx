@@ -73,7 +73,7 @@ export default function Ask() {
           messages?.length > 0 ? 'grow-animation' : ''
         }`}
       >
-        <header className='flex justify-center min-h-30 h-30 max-h-30 xsm:min-h-24'>
+        <header className='flex justify-center min-h-24 h-2min-h-24 max-h-2min-h-24 xsm:min-h-24'>
           <div className='container mx-auto'>
             <h1 className='text-2xl font-bold text-center pt-4'>Ask the AI</h1>
             <p className='text-center pb-4s px-6 pt-1'>
