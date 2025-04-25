@@ -22,9 +22,12 @@ export default async function Home() {
   }
 
   return (
-    <div className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent'>
+    <div
+      id='container'
+      className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent'
+    >
       {/* Header */}
-      <div className='w-screen flex justify-center items-center'>
+      <div className='w-screen flex justify-center items-center h-24 min-h-24'>
         <header className='flex justify-between items-center py-2 px-4 grow bg-white/70 m-4 rounded-xl'>
           <h1 className='text-3xl font-bold'>Organizer</h1>
           <SignedOut>
@@ -37,7 +40,7 @@ export default async function Home() {
         </header>
       </div>
 
-      <div className='flex justify-evenly items-stretch grow'>
+      <div className='flex justify-evenly items-stretch h-[calc(100%-6rem)] min-h-[calc(100%-6rem)] max-h-[calc(100%-6rem)] '>
         {/* */}
         {/* Left sidebar */}
         <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
@@ -45,36 +48,34 @@ export default async function Home() {
           <Categories categories={categories} />
         </div>
 
-        <div className='grow flex flex-col m-4 max-w-[9 7vw]'>
-          {/* tabs */}
-          <Tabs defaultTab={0}>
-            <Tab title='Write'>
-              <div className='bg-transparent rounded-xl grow px-10 py-4'>
-                <header className='flex justify-center'>
-                  <div className='container mx-auto'>
-                    <h1 className='text-2xl font-bold text-center pt-4'>
-                      Text Classification
-                    </h1>
-                    <p className='text-center pb-4 pt-1'>
-                      Input your text and have it categorize by the AI.
-                    </p>
-                  </div>
-                </header>
-                <main className='flex justify-center items-center'>
-                  <div className='grow max-w-3xl'>
-                    <TextInput categories={categories} />
-                  </div>
-                </main>
-              </div>
-            </Tab>
-            <Tab title='Ask'>
-              <Ask />
-            </Tab>
-            <Tab title='Categories' className='block lg:hidden'>
-              <Categories categories={categories} />
-            </Tab>
-          </Tabs>
-        </div>
+        {/* tabs */}
+        <Tabs defaultTab={0}>
+          <Tab title='Write'>
+            <div className='bg-transparent rounded-xl grow px-10 py-4'>
+              <header className='flex justify-center'>
+                <div className='container mx-auto'>
+                  <h1 className='text-2xl font-bold text-center pt-4'>
+                    Text Classification
+                  </h1>
+                  <p className='text-center pb-4 pt-1'>
+                    Input your text and have it categorize by the AI.
+                  </p>
+                </div>
+              </header>
+              <main className='flex justify-center items-center'>
+                <div className='grow max-w-3xl'>
+                  <TextInput categories={categories} />
+                </div>
+              </main>
+            </div>
+          </Tab>
+          <Tab title='Ask'>
+            <Ask />
+          </Tab>
+          <Tab title='Categories' className='block lg:hidden'>
+            <Categories categories={categories} />
+          </Tab>
+        </Tabs>
       </div>
     </div>
   )

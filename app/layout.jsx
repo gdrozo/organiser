@@ -13,12 +13,13 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang='en'>
-        <body
-          className={
-            inter.className + ' h-dvh w-dvw overflow-hidden bg-gradient-primary'
-          }
-        >
-          {children}
+        <body className={inter.className + ''}>
+          <div
+            id='h-container'
+            className='h-dvh w-dvw overflow-hidden bg-gradient-primary'
+          >
+            {children}
+          </div>
         </body>
       </html>
     </ClerkProvider>
