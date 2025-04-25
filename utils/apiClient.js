@@ -1,23 +1,37 @@
-export async function fetchStream(url, onUpdate, onComplete, onError) {
+export async function fetchStream(url, body, onUpdate, onComplete, onError) {
   try {
-    const response = await fetch(url)
+    // Post
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
+    async function loop() {
+      reader.read().then(result => {
+        const { done, value } = result
+        if (done) return
 
-      const chunk = decoder.decode(value)
+        const chunk = decoder.decode(value)
 
-      if (chunk.includes('loading')) {
-        onUpdate('loading')
-      } else if (chunk.includes('processing')) {
-        onUpdate('processing')
-      } else {
-        onComplete(chunk)
-      }
+        const STATUS = 'status:'
+        const RESPONSE = 'response:'
+
+        if (chunk.startsWith(STATUS)) {
+          onUpdate(chunk)
+        } else {
+          onComplete(chunk)
+          return
+        }
+
+        setTimeout(loop, 100)
+      })
     }
+    loop()
   } catch (error) {
     console.error('Error fetching stream:', error)
     onError()

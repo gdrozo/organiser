@@ -1,8 +1,9 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { streamText } from 'ai'
-import { auth } from '@clerk/nextjs/server'
 import { GetCategories, getText } from '@/logic/Categories'
 import { generateText } from 'ai'
+import { checkAuth } from '@/utils/auth'
+import { streamTextTunnel } from '@/utils/streamHelper'
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY, // Securely stored API key
@@ -15,11 +16,8 @@ FILE LIST:`
 
 export async function POST(req) {
   try {
-    // Use Clerk's auth() function to check authentication
-    const { userId } = await auth()
-
     // If the user is not signed in, return a 401 Unauthorized response
-    if (!userId) {
+    if (!checkAuth()) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized access: Please sign in.' }),
         {
@@ -32,51 +30,67 @@ export async function POST(req) {
     // Parse the request body
     const { messages } = await req.json()
 
-    const preparedMessages = []
-    messages.map(message => {
-      const newMessage = { ...message }
-      if (message.role === 'user') {
-        newMessage.content = `QUESTION: "${message.content}" What files from the list do you need to retrieve the answer? respond JUST with a list them separated by a comma. do not respond with anything else.`
+    let preparedMessages = [...messages]
+    const lastIndex = preparedMessages.length - 1
+
+    preparedMessages[lastIndex] = structuredClone(preparedMessages[lastIndex])
+
+    preparedMessages[
+      lastIndex
+    ].content = `QUESTION: "${preparedMessages[lastIndex].content}" What files from the list do you need to retrieve the answer? respond JUST with a list them separated by a comma. do not respond with anything else.`
+
+    const tunnel = await streamTextTunnel()
+
+    ;(async () => {
+      tunnel.sendMessage('status:loading categories')
+      const categories = await GetCategories()
+
+      let systemPrompt = SYSTEM_PROMPT
+
+      categories.map(category => {
+        systemPrompt += `${category},`
+      })
+
+      tunnel.sendMessage('status:selecting files')
+
+      console.log('preparedMessages', preparedMessages)
+      const response = await generateText({
+        model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
+        system: systemPrompt, // Define system behavior
+        messages: preparedMessages, // Ensure chat context is passed
+      })
+
+      // Stream the response back to the client
+      const selectedFiles = response.text.replaceAll(/\n/g, '').split(',')
+
+      let contents = ''
+      for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i]
+        tunnel.sendMessage('status:getting file: ' + file + '.txt')
+        const text = await getText(file)
+        contents += text
       }
-      preparedMessages.push(message)
-    })
 
-    const categories = await GetCategories()
+      /*
+      const lastUserMessage =
+        messages.length - 2 < 0 ? messages[0] : messages[messages.length - 2]
+*/
+      tunnel.sendMessage('status:asking AI')
 
-    let systemPrompt = SYSTEM_PROMPT
+      console.log('messages', messages)
+      const result = await generateText({
+        model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
+        system:
+          'ANSWER THE QUESTION COMPLETELY BASED ON THIS TEXT: ' + contents, // Define system behavior
+        messages: messages, // Ensure chat context is passed
+      })
 
-    categories.map(category => {
-      systemPrompt += `${category},`
-    })
+      tunnel.sendMessage('response:' + result.text)
 
-    const response = await generateText({
-      model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
-      system: systemPrompt, // Define system behavior
-      messages: preparedMessages, // Ensure chat context is passed
-    })
+      tunnel.close()
+    })()
 
-    // Stream the response back to the client
-    const selectedFiles = response.text.replaceAll(/\n/g, '').split(',')
-
-    console.log('selectedFiles', selectedFiles)
-
-    let contents = ''
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i]
-      const text = await getText(file)
-      contents += text
-    }
-
-    const lastUserMessage =
-      messages.length - 2 < 0 ? messages[0] : messages[messages.length - 2]
-
-    const result = streamText({
-      model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
-      system: 'ANSWER THE QUESTION COMPLETELY BASED ON THIS TEXT: ' + contents, // Define system behavior
-      messages: [lastUserMessage], // Ensure chat context is passed
-    })
-
-    return result.toDataStreamResponse()
+    return tunnel.response
   } catch (error) {
     console.error('Error handling chat:', error)
     return new Response(JSON.stringify({ error: 'Failed to handle chat' }), {

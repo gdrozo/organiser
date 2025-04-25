@@ -11,7 +11,7 @@ function Tabs({ children, defaultTab }) {
   }
 
   return (
-    <div className='grow flex flex-col m-4 max-w-[9 7vw]'>
+    <div className='grow flex flex-col m-4 max-w-[97vw] max-h-full'>
       <div className='h-10 flex justify-start '>
         <div className='flex relative tabs tabs-container'>
           <div
@@ -60,7 +60,7 @@ function Tabs({ children, defaultTab }) {
         children.map((c, index) => (
           <div
             className={
-              'w-full z-20 bg-white text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] ' +
+              'w-full z-20 bg-white text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex ' +
               ' ' +
               (selectedTab === index ? 'block' : 'hidden')
             }

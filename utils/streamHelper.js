@@ -12,7 +12,7 @@ export function createStreamingResponse(controller, encoder) {
   })()
 }
 
-export async function streamText() {
+export async function streamTextTunnel() {
   const encoder = new TextEncoder()
   const [stream, controller] = await getReadableStream()
 

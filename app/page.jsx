@@ -40,7 +40,7 @@ export default async function Home() {
         </header>
       </div>
 
-      <div className='flex justify-evenly items-stretch h-[calc(100%-6rem)] min-h-[calc(100%-6rem)] max-h-[calc(100%-6rem)] '>
+      <div className='flex justify-evenly items-stretch h-[calc(100dvh-6rem)] min-h-[calc(100dvh-6rem)] max-h-[calc(100dvh-6rem)] '>
         {/* */}
         {/* Left sidebar */}
         <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
@@ -51,7 +51,7 @@ export default async function Home() {
         {/* tabs */}
         <Tabs defaultTab={0}>
           <Tab title='Write'>
-            <div className='bg-transparent rounded-xl grow px-10 py-4'>
+            <div className='bg-transparent rounded-xl grow px-10 py-4 flex flex-col'>
               <header className='flex justify-center'>
                 <div className='container mx-auto'>
                   <h1 className='text-2xl font-bold text-center pt-4'>
@@ -62,8 +62,8 @@ export default async function Home() {
                   </p>
                 </div>
               </header>
-              <main className='flex justify-center items-center'>
-                <div className='grow max-w-3xl'>
+              <main className=' flex grow'>
+                <div className='max-w-3xl grow flex'>
                   <TextInput categories={categories} />
                 </div>
               </main>

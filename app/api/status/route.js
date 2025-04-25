@@ -1,7 +1,7 @@
-import { streamText } from '@/utils/streamHelper'
+import { streamTextTunnel } from '@/utils/streamHelper'
 
 export async function GET() {
-  const tunnel = await streamText()
+  const tunnel = await streamTextTunnel()
 
   ;(async () => {
     tunnel.sendMessage('loading')
@@ -9,7 +9,6 @@ export async function GET() {
     await awaitToRun(() => tunnel.sendMessage('final-result'), 1000)
 
     tunnel.close()
-    close()
   })()
   return tunnel.response
 }

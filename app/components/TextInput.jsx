@@ -104,21 +104,20 @@ export default function TextInput({ categories }) {
   }
 
   return (
-    <div>
+    <div className='grow flex'>
       {/* Show loading spinner or disable input */}
       {status === 'streaming' && <div>Loading...</div>}
 
-      <div className='relative'>
+      <div className='relative grow flex justify-center'>
         {/* User input form */}
-        <form onSubmit={interceptSubmit} className='flex flex-col gap-4'>
+        <form onSubmit={interceptSubmit} className='flex flex-col gap-4 grow'>
           <Textarea
-            className='border border-gray-300 rounded-md p-2 bg-white'
+            className='border border-gray-300 rounded-md p-2 bg-white grow'
             placeholder='Enter your message'
             name='prompt' // Required for useChat
             value={input}
             onChange={interceptInputChange}
             disabled={status !== 'ready'}
-            rows={20}
             id='prompt'
           />
           <Button
