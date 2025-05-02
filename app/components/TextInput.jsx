@@ -195,7 +195,7 @@ export default function TextInput({ categories }) {
                     onKeyDown={handleKeyDown}
                   />
                   <div className='absolute bg-white top-full right-0 left-0 -mt-1 pt-1 z-0 border rounded-b-md'>
-                    {results.map(result =>
+                    {results?.map(result =>
                       result && result.item ? (
                         <div
                           key={result.item}
