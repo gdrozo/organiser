@@ -16,7 +16,6 @@ const serviceAccount = {
   universe_domain: process.env.FIREBASE_UNIVERSE_DOMAIN,
 }
 
-debugger
 let app
 if (!getApps().length) {
   app = initializeApp({

@@ -1,0 +1,216 @@
+Create and populate folders
+
+Folders are files that only contain metadata and can be used to organize files in Google Drive. They have the following properties:
+
+    A folder is a file with the MIME type application/vnd.google-apps.folder and it has no extension.
+    The alias root can be used to refer to the root folder anywhere a file ID is provided.
+
+For more information about Drive folder limits, see File and folder limits.
+
+This guide explains how to perform some basic folder-related tasks.
+Create a folder
+
+To create a folder, use the files.create() method with the mimeType of application/vnd.google-apps.folder and a name. The following code sample shows how to create a folder using a client library:
+Note: If you're using the older Drive API v2, use the files.insert method. You can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/create_folder.js
+View on GitHub
+
+/**
+ * Create a folder and prints the folder ID
+ * @return{obj} folder Id
+ * */
+async function createFolder() {
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+
+  const auth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/drive',
+  });
+  const service = google.drive({version: 'v3', auth});
+  const fileMetadata = {
+    name: 'Invoices',
+    mimeType: 'application/vnd.google-apps.folder',
+  };
+  try {
+    const file = await service.files.create({
+      requestBody: fileMetadata,
+      fields: 'id',
+    });
+    console.log('Folder Id:', file.data.id);
+    return file.data.id;
+  } catch (err) {
+    // TODO(developer) - Handle error
+    throw err;
+  }
+}
+
+Create a file in a specific folder
+
+To create a file in a specific folder, use the files.create() method and specify the folder ID in the parents property of the file.
+
+The parents property holds the ID of the parent folder containing the file. The parents property can be used when creating files in a top-level folder or any other folder.
+
+A file can only have one parent folder. Specifying multiple parents isn't supported. If the parents field isn't specified, the file is placed directly in the user's My Drive folder.
+
+The following code sample shows how to create a file in a specific folder using a client library:
+Note: If you're using the older Drive API v2, use the files.insert method. You can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/upload_to_folder.js
+View on GitHub
+
+/**
+ * Upload a file to the specified folder
+ * @param{string} folderId folder ID
+ * @return{obj} file Id
+ * */
+async function uploadToFolder(folderId) {
+  const fs = require('fs');
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+  const auth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/drive',
+  });
+  const service = google.drive({version: 'v3', auth});
+
+  // TODO(developer): set folder Id
+  // folderId = '1lWo8HghUBd-3mN4s98ArNFMdqmhqCXH7';
+  const fileMetadata = {
+    name: 'photo.jpg',
+    parents: [folderId],
+  };
+  const media = {
+    mimeType: 'image/jpeg',
+    body: fs.createReadStream('files/photo.jpg'),
+  };
+
+  try {
+    const file = await service.files.create({
+      requestBody: fileMetadata,
+      media: media,
+      fields: 'id',
+    });
+    console.log('File Id:', file.data.id);
+    return file.data.id;
+  } catch (err) {
+    // TODO(developer) - Handle error
+    throw err;
+  }
+}
+
+Move files between folders
+
+To move files, you must update the ID of the parents property.
+
+To add or remove parents for an existing file, use the files.update() method with either the addParents and removeParents query parameters.
+
+A file can only have one parent folder. Specifying multiple parents isn't supported.
+Warning: Even though a folder is a type of file, you can't move a folder from My Drive into a shared drive by updating the addParents parameter. Attempting to do so returns a teamDrivesFolderMoveInNotSupported HTTP status code response. For more information and potential workarounds, see Resolve errors
+
+The following code sample shows how to move a file between folders using a client library:
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/move_file_to_folder.js
+View on GitHub
+
+/**
+ * Change the file's modification timestamp.
+ * @param{string} fileId Id of the file to move
+ * @param{string} folderId Id of the folder to move
+ * @return{obj} file status
+ * */
+async function moveFileToFolder(fileId, folderId) {
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+  const auth = new GoogleAuth({
+    scopes: 'https://www.googleapis.com/auth/drive',
+  });
+  const service = google.drive({version: 'v3', auth});
+
+  try {
+    // Retrieve the existing parents to remove
+    const file = await service.files.get({
+      fileId: fileId,
+      fields: 'parents',
+    });
+
+    // Move the file to the new folder
+    const previousParents = file.data.parents
+        .join(',');
+    const files = await service.files.update({
+      fileId: fileId,
+      addParents: folderId,
+      removeParents: previousParents,
+      fields: 'id, parents',
+    });
+    console.log(files.status);
+    return files.status;
+  } catch (err) {
+    // TODO(developer) - Handle error
+    throw err;
+  }
+}
+
+Note: If you're using the earlier Drive API v2, the children and parents resources can also facilitate the reorganization of files and folders.
+File and folder limits
+
+Drive files and folders have some storage limits.
+User-item limit
+
+Each user can have up to 500 million items that were created by that account. When the limit is reached, the user can no longer create or upload items in Drive. They can still view and edit existing items. To create files again, users must permanently delete items or use a different account. For more information, see Trash or delete files and folders.
+
+Objects that count toward this limit are:
+
+    Items created or uploaded by the user in Drive
+    Items created by the user but now owned by someone else
+    Items in the trash
+    Shortcuts
+    Third-party shortcuts
+
+Objects that don't count toward this limit are:
+
+    Permanently-deleted items
+    Items shared with the user but owned by someone else
+    Items owned by the user but created by someone else
+
+Attempts to add more than 500 million items returns an activeItemCreationLimitExceeded HTTP status code response.
+
+Note that while there's no limit on the number of items a service account can own, the 500 million item limit applies to the number of items a service account can create.
+Folder-item limit
+
+Each folder in a user's My Drive has a limit of 500,000 items. This limit doesn't apply to the root folder of My Drive. Items that count toward this limit are:
+
+    Folders
+    Files. All file types, regardless of file ownership.
+    Shortcuts. Counts as a single item within a folder, even if the item it points to isn't within that folder. For more information, see Create a shortcut to a Drive file.
+    Third-party shortcuts. Counts as a single item within a folder, even if the item it points to isn't within that folder. For more information, see Create a shortcut file to content stored by your app.
+
+For more information about folder limits, see Folder limits in Google Drive.
+Folder-depth limit
+
+A user's My Drive can't contain more than 100 levels of nested folders. This means that a child folder cannot be stored under a folder that's more than 99 levels deep. This limitation only applies to child folders. A child file with a MIME type other than application/vnd.google-apps.folder is exempt from this limitation.
+
+For example, in the following diagram a new folder can be nested inside folder number 99 but not inside folder number 100. However, folder number 100 can store files like any other Drive folder:
+
+Drive folder depth limit.
+
+Attempts to add more than 100 levels of folders returns a myDriveHierarchyDepthLimitExceeded HTTP status code response.

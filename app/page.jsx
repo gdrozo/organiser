@@ -15,11 +15,23 @@ import Ask from './components/Ask'
 export default async function Home() {
   let categories = undefined
 
+  const start = performance.now()
+
+  console.log('------------------------------------------------')
+  console.log('Categories time')
   try {
     categories = await GetCategories()
   } catch (e) {
+    console.log('Error getting categories', e)
     redirect('/auth')
   }
+
+  const end = performance.now()
+
+  console.log(`Total time: ${(end - start) / 1000} seconds`)
+  console.log('------------------------------------------------')
+
+  const categoriesEl = <Categories categories={categories} />
 
   return (
     <div
@@ -45,7 +57,7 @@ export default async function Home() {
         {/* Left sidebar */}
         <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
           <h3 className='p-8 pb-2 text-xl font-bold'>Files</h3>
-          <Categories categories={categories} />
+          {categoriesEl}
         </div>
 
         {/* tabs */}
@@ -73,7 +85,7 @@ export default async function Home() {
             <Ask />
           </Tab>
           <Tab title='Categories' className='block lg:hidden'>
-            <Categories categories={categories} />
+            {categoriesEl}
           </Tab>
         </Tabs>
       </div>

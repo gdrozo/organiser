@@ -1,0 +1,159 @@
+Trash or delete files and folders
+
+You can remove Google Drive files and folders from both your My Drive and shared drives. You have two options to do this: trash or delete.
+
+You can move files and folders into the trash and then restore them (within 30 days of trashing them). Deleting files and folders removes them permanently from Drive. If you trash, restore, or permanently delete multiple files or folders at once, it might take time for you to notice the changes.
+Note: For this document, assume "files" means both files and folders. Folders are files that only contain metadata and can be used to organize files in Drive. Specifically, a folder is a file with the MIME type application/vnd.google-apps.folder and with no extension. For more information, see Create and populate folders.
+
+This guide explains how you can dispose of files in Drive.
+Trash
+
+To remove Drive files, you can move them to the trash. Files in the trash are automatically deleted after 30 days. You can restore files from your trash before the 30-day period.
+
+Only the file owner can trash a file, and other users can't view files in the owner's trash. If you attempt to trash a file you don't own, you receive an insufficientFilePermissions error. For more information, see Permissions.
+
+To verify you're the file owner, call the files.get method with the fileId and the fields parameter set to the boolean ownedByMe field. The ownedByMe field isn't populated for files in shared drives because they're owned by the shared drive, not individual users. For further information about returning fields using the fields parameter, see Return specific fields for a file.
+
+If you're not the file owner but still want a copy of the trashed file, do one of the following:
+
+    Make a copy of the file.
+    Contact the owner to have them restore it from the trash.
+
+Move a file to the trash
+
+To move a file to the trash, use the files.update method and set the trashed field to True. To trash a shared drive file, you must also set the supportsAllDrives query parameter to True. For more information, see Implement shared drive support.
+
+If successful, the response body contains an instance of the files resource.
+Note: If you're using the previous Drive API v2 version, use the files.trash method. Learn how to migrate to Drive API v3.
+
+The following code sample shows how to use the fileId to mark the file as trashed:
+Python
+Node.js
+
+const body_value = {
+'trashed': True
+};
+
+const response = await drive_service.files.update({
+fileId: 'FILE_ID
+
+',
+requestBody: body_value,
+});
+return response;
+
+Replace FILE_ID with the fileId of the file that you want to trash.
+Determine a trashed file's properties
+
+When a file is trashed, you can retrieve additional files properties. You can use the files.get method and include the following fields in the fields parameter. For more information, see Return specific fields for a file.
+
+The following fields are populated for all files:
+
+    trashed: Whether the file was trashed, either explicitly or from a trashed parent folder. Note that while using trashed with the files.update method sets the file's status, the files.get method retrieves the file's status.
+    explicitlyTrashed: Whether the file was explicitly trashed, as opposed to recursively trashed, from a parent folder.
+
+The following fields are only populated for files located within a shared drive:
+
+    trashedTime: The time that the item was trashed in RFC 3339 date-time format. If you're using the previous Drive API v2 version, this field is called trashedDate.
+    trashingUser: If the file was explicitly trashed, the user who trashed it.
+
+Recover a file from the trash
+
+To recover a file from the trash, use the files.update method and set the trashed field to False. To untrash a shared drive file, you also must set the supportsAllDrives query parameter to True. For more information, see Implement shared drive support.
+
+If successful, the response body contains an instance of the files resource.
+Note: If you're using the previous Drive API v2 version, use the files.untrash method. Learn how to migrate to Drive API v3.
+
+The following code sample shows how to use the fileId to mark the file as untrashed:
+Python
+Node.js
+
+const body_value = {
+'trashed': False
+};
+
+const response = await drive_service.files.update({
+fileId: 'FILE_ID
+
+',
+requestBody: body_value,
+});
+return response;
+
+Replace FILE_ID with the fileId of the file that you want to untrash.
+Empty trash
+
+You can permanently delete all Drive files the user has moved to the trash using the files.emptyTrash method. To empty the trash of a shared drive, you must also set the driveId query parameter to the shared drive ID.
+
+If successful, the response body contains an empty instance.
+Note: If you're using the previous Drive API v2 version, use the files.emptyTrash method. Learn how to migrate to Drive API v3.
+
+The following code sample shows how to use the fileId to delete all files in the trash:
+Python
+Node.js
+
+const response = await drive_service.files.emptyTrash({
+});
+return response;
+
+Delete
+
+You can permanently delete a Drive file without moving it to the trash. After you delete a file, anyone you've shared the file with loses access to it. If you want others to retain access to the file, you can transfer ownership to someone else before deletion.
+
+To delete a shared drive file, the user must have role=organizer on the parent folder. If you're deleting a folder, all descendants owned by the user are also deleted. For more information, see Permissions.
+
+To permanently delete a user-owned file without moving it to the trash, use the files.delete method. To delete a shared drive file, you must also set the supportsAllDrives query parameter to True. For more information, see Implement shared drive support.
+
+If successful, the response body contains an empty instance.
+Note: If you're using the previous Drive API v2 version, use the files.delete method. Learn how to migrate to Drive API v3.
+
+The following code sample shows how to use the fileId to delete the file:
+Python
+Node.js
+
+const response = await drive_service.files.delete({
+fileId: 'FILE_ID
+
+'
+});
+return response;
+
+Replace FILE_ID with the fileId of the file that you want to delete.
+Permissions
+
+The following table shows the role permissions required to perform each operation. For a complete list of roles and the operations permitted by each, refer to Roles and permissions.
+Permitted operation owner organizer fileOrganizer writer commenter reader
+Move files and folders into the trash ✔ ✔ ✔
+Recover files and folders from the trash ✔ ✔ ✔
+Empty the trash ✔ ✔
+Permanently delete a file or folder ✔ ✔
+Delete files and folders in a shared drive [*] ✔
+[*] Requires the organizer role on a direct or indirect parent, as opposed to the role being present on the item.
+Capabilities
+
+A files resource contains a collection of boolean capabilities fields used to indicate whether an action can be performed on a file.
+
+To check the capabilities, call the files.get method with the fileId and the fields parameter set to the capabilities field. For further information about returning fields using the fields parameter, see Return specific fields for a file.
+
+The following fields are populated for all files:
+
+    capabilities.canTrash: Whether the current user can move this file to trash.
+    capabilities.canUntrash: Whether the current user can restore this file from trash.
+    capabilities.canDelete: Whether the current user can delete this file.
+    capabilities.canRemoveChildren: Whether the current user can remove children from this folder. This is false when the item isn't a folder.
+
+The following fields are only populated for files located within a shared drive:
+
+    capabilities.canTrashChildren: Whether the current user can trash children of this folder. This is false when the item isn't a folder.
+    capabilities.canDeleteChildren: Whether the current user can delete children of this folder. This is false when the item isn't a folder.
+
+File and folder limits
+
+Drive files and folders, along with shared drive folders, have some storage limits.
+
+Generally, after the item limit is reached, the only way to create more space is to permanently delete items or use a different account. Moving files to the trash isn't enough to free up space.
+
+For more information on file and folder limits, see the following:
+
+    File and folder limits in files
+    File and folder limits in shared drives

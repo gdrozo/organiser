@@ -21,14 +21,8 @@ export async function GET(req) {
 export async function POST(req) {
   try {
     const { category, text } = await req.json()
-    const categories = await GetCategories()
-    if (!categories.includes(category)) {
-      // New file/category
-      await addCategory(category, text)
-      return new Response(JSON.stringify({ category }), { status: 200 })
-    }
 
-    addText(category, text)
+    await addText(category, text)
     return new Response(JSON.stringify({ category }), { status: 200 })
   } catch (error) {
     if (error.message === 'Unauthorized access') {

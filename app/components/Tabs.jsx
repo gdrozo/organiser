@@ -15,25 +15,35 @@ function Tabs({ children, defaultTab }) {
       <div className='h-10 flex justify-start '>
         <div className='flex relative tabs tabs-container'>
           <div
-            className='absolute bg-white rounded-t-lg -bottom-3 top-0 w-28 transition-all duration-300 ease-in-out'
+            className='absolute bg-white/80 rounded-t-lg bottom-0 top-0 w-28 transition-all duration-300 ease-in-out'
             style={{ left: 7 * selectedTab + 'rem' }}
           >
             <div
               className={
-                'absolute rounded-bl-[0.6rem] bottom-3 -right-4 h-4 w-4 bg-transparent' +
+                'absolute bottom-0 -right-3 bg-transparent' +
                 ' ' +
-                (selectedTab === children.length - 1
-                  ? ''
-                  : 'shadow-[-3px_3px_0px_3px_white]')
+                (selectedTab === children.length - 1 ? '' : '')
               }
-            ></div>
+            >
+              <img
+                src='border.svg'
+                className='size-3 mr-px mt-px fill-white/80 opacity-80'
+                alt='SVG Image'
+              />
+            </div>
             <div
               className={
-                'absolute rounded-br-[0.6rem]  bottom-3 -left-4 h-4 w-4 bg-transparent transition-all duration-300 ease-in-out' +
+                'absolute bottom-0 -left-3 bg-transparent transition-all duration-300 ease-in-out' +
                 ' ' +
-                (selectedTab === 0 ? '' : 'shadow-[3px_3px_0px_3px_white]')
+                (selectedTab === 0 ? 'opacity-0' : '')
               }
-            ></div>
+            >
+              <img
+                src='border.svg'
+                className='size-3 mr-px mt-px fill-white/80 opacity-80 flip -scale-x-100'
+                alt='SVG Image'
+              />
+            </div>
           </div>
 
           {children.map((child, index) => (
@@ -59,11 +69,10 @@ function Tabs({ children, defaultTab }) {
         children.map &&
         children.map((c, index) => (
           <div
-            className={
-              'w-full z-20 bg-white text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex ' +
-              ' ' +
-              (selectedTab === index ? 'block' : 'hidden')
-            }
+            className={`w-full z-20 bg-white/80 text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex 
+              ${selectedTab === index ? 'block' : 'hidden'} ${
+              index === 0 ? 'unround' : ''
+            }`}
             key={index}
           >
             {c}

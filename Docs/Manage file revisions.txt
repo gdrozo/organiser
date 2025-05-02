@@ -1,0 +1,18 @@
+Manage file revisions
+
+Google Drive API provides the revisions resource so that you can download and publish file revisions. For more details about revision terminology, see Changes and revisions overview.
+Specify revisions to save from auto delete
+
+Google Drive automatically deletes older revisions that are no longer of interest to the user. To prevent this from happening, you can set the boolean flag keepRevisionForever to true to mark revisions that you don't want Drive to purge.
+Download a revision
+
+To download the latest revision, use the files.download method. For more information, see Manage long-running operations.
+Publish a revision
+
+To publish a Google Docs, Google Sheets, and Google Slides revision, set the published property for that file in the revisions resource. This property can't be set for Google Sites revisions using Drive API.
+
+Google Slides and Google Drawings don't support publishing specific revisions. Only automatic re-publishing of the most recent revision is supported. To publish Slides and Drawings, also set publishAuto to true.
+
+If the file is created in a Google Workspace domain, the publishedOutsideDomain property indicates whether the revision is accessible by anyone or if it's restricted to users of the domain. For Sites files, this property indicates whether a type=anyone permission exists.
+
+Published revisions don't reflect changes made to a file unless the publishAuto property is set. If that property is set to true, newer revisions of a file are automatically published, overwriting the previous ones. This behavior is also controlled by the "Automatically re-publish when changes are made" checkbox in the Drive UI. Slides and Drawings only support automatic re-publishing and require the publishAuto property to be set to true. For Sites files, publishAuto is always false.

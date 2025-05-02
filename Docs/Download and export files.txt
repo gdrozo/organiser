@@ -1,0 +1,154 @@
+Download and export files
+
+The Google Drive API supports several types of download and export actions, as listed in the following table:
+Download actions
+Blob file content using the files.get method with the alt=media URL parameter.
+Blob file content at an earlier version using the revisions.get method with the alt=media URL parameter.
+Blob file content in a browser using the webContentLink field.
+Blob file content using the files.download method during long-running operations. This is the only way to download Google Vids files.
+Export actions
+Google Workspace document content in a format that your app can handle, using the files.export method.
+Google Workspace document content in a browser using the exportLinks field.
+Google Workspace document content at an earlier version in a browser using the exportLinks field.
+Google Workspace document content using the files.download method during long-running operations.
+
+Before you download or export file content, verify that users can download the file using the capabilities.canDownload field on the files resource.
+
+For descriptions of the file types mentioned here, including blob and Google Workspace files, see File types.
+
+The rest of this guide provides detailed instructions for performing these types of download and export actions.
+Download blob file content
+
+To download a blob file stored on Drive, use the files.get method with the ID of the file to download and the alt=media URL parameter. The alt=media URL parameter tells the server that a download of content is being requested as an alternative response format.
+
+The alt=media URL parameter is a system parameter available across all Google REST APIs. If you use a client library for the Drive API, you don't need to explicitly set this parameter.
+
+The following code sample shows how to use the files.get method to download a file with the Drive API client libraries.
+Note: If you're using the older Drive API v2, you can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/download_file.js
+View on GitHub
+
+/\*\*
+
+- Downloads a file
+- @param{string} realFileId file ID
+- @return{obj} file status
+- \*/
+  async function downloadFile(realFileId) {
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+
+const {GoogleAuth} = require('google-auth-library');
+const {google} = require('googleapis');
+
+const auth = new GoogleAuth({
+scopes: 'https://www.googleapis.com/auth/drive',
+});
+const service = google.drive({version: 'v3', auth});
+
+fileId = realFileId;
+try {
+const file = await service.files.get({
+fileId: fileId,
+alt: 'media',
+});
+console.log(file.status);
+return file.status;
+} catch (err) {
+// TODO(developer) - Handle error
+throw err;
+}
+}
+
+This code sample uses a library method that adds the alt=media URL parameter to the underlying HTTP request.
+
+File downloads started from your app must be authorized with a scope that allows read access to the file content. For example, an app using the drive.readonly.metadata scope isn't authorized to download the file contents. This code sample uses the restricted “drive” file scope that allows users to view and manage all of your Drive files. To learn more about Drive scopes, refer to Choose Google Drive API scopes.
+
+Users with edit permissions can restrict downloading by read-only users through setting the copyRequiresWriterPermission field to false.
+
+Files identified as abusive (such as harmful software) are only downloadable by the file owner. Additionally, the get query parameter acknowledgeAbuse=true must be included to indicate that the user has acknowledged the risk of downloading potentially unwanted software or other abusive files. Your application should interactively warn the user before using this query parameter.
+Partial download
+
+Partial download involves downloading only a specified portion of a file. You can specify the portion of the file you want to download by using a byte range with the Range header. For example:
+
+Range: bytes=500-999
+
+Note: Partial downloads are not supported while exporting Google Workspace documents.
+Download blob file content at an earlier version
+
+To download the content of blob files at an earlier version, use the revisions.get method with the ID of the file to download, the ID of the revision, and the alt=media URL parameter. The alt=media URL parameter tells the server that a download of content is being requested as an alternative response format. Similar to files.get, the revisions.get method also accepts the optional query parameter acknowledgeAbuse and the Range header. For more information on downloading revisions, see Manage file revisions.
+
+The request protocol is shown here.
+
+GET https://www.googleapis.com/drive/v3/files/{FILE_ID
+
+}/revisions/{REVISION_ID
+
+}?alt=media
+
+Download blob file content in a browser
+
+To download the content of blob files stored on Drive within a browser, instead of through the API, use the webContentLink field of the files resource. If the user has download access to the file, a link for downloading the file and its contents is returned. You can either redirect a user to this URL, or offer it as a clickable link.
+Download blob file content during long-running operations
+
+To download the content of blob files during long-running operations, use the files.download method with the ID of the file to download. You can optionally set the ID of the revision. This is the only way to download Google Vids files. For more information, see Manage long-running operations.
+Export Google Workspace document content
+
+To export Google Workspace document byte content, use the files.export method with the ID of the file to export and the correct MIME type. Exported content is limited to 10 MB.
+
+The following code sample shows how to use the files.export method to export a Google Workspace document in PDF format using the Drive API client libraries:
+Note: If you're using the older Drive API v2, you can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/export_pdf.js
+View on GitHub
+
+/\*\*
+
+- Download a Document file in PDF format
+- @param{string} fileId file ID
+- @return{obj} file status
+- \*/
+  async function exportPdf(fileId) {
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+
+// Get credentials and build service
+// TODO (developer) - Use appropriate auth mechanism for your app
+const auth = new GoogleAuth({
+scopes: 'https://www.googleapis.com/auth/drive',
+});
+const service = google.drive({version: 'v3', auth});
+
+try {
+const result = await service.files.export({
+fileId: fileId,
+mimeType: 'application/pdf',
+});
+console.log(result.status);
+return result;
+} catch (err) {
+// TODO(developer) - Handle error
+throw err;
+}
+}
+
+This code sample uses the restricted drive scope that allows users to view and manage all of your Drive files. To learn more about Drive scopes, refer to Choose Google Drive API scopes.
+
+The code sample also declares the export MIME type as application/pdf. For a complete list of all export MIME types supported for each Google Workspace document, refer to Export MIME types for Google Workspace documents.
+Export Google Workspace document content in a browser
+
+To export Google Workspace document content within a browser, use the exportLinks field of the files resource. Depending on the document type, a link to download the file and its contents is returned for every MIME type available. You can either redirect a user to a URL, or offer it as a clickable link.
+Export Google Workspace document content at an earlier version in a browser
+
+To export Google Workspace document content at an earlier version within a browser, use the revisions.get method with the ID of the file to download and the ID of the revision to generate an export link from which you can perform the download. If the user has download access to the file, a link for downloading the file and its contents is returned. You can either redirect a user to this URL, or offer it as a clickable link.
+Export Google Workspace document content during long-running operations
+To export Google Workspace document content during long-running operations, use the files.download method with the ID of the file to download and the ID of the revision. For more information, see Manage long-running operations.

@@ -16,7 +16,7 @@ export default function TextInput({ categories }) {
   const [ogHeight, setOgHeight] = useState(0)
 
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
-    api: '/api/classify', // Points to the updated server-side chat handler
+    api: '/api/ai/classify', // Points to the updated server-side chat handler
   })
 
   const [submitted, setSubmitted] = useState(false)
@@ -117,6 +117,7 @@ export default function TextInput({ categories }) {
   }
 
   function onClickCategory(category) {
+    debugger
     setCategory(category)
     setResults([])
   }
@@ -124,7 +125,7 @@ export default function TextInput({ categories }) {
   async function done() {
     // Send category to server
 
-    await fetch('/api/categories', {
+    await fetch('/api/text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -188,7 +189,7 @@ export default function TextInput({ categories }) {
                 <div className='relative max-w-md flex justify-center items-center'>
                   <Input
                     placeholder='Enter your own category'
-                    defaultValue={category}
+                    value={category}
                     onChange={searchCategory}
                     className='z-10 relative bg-white text-base'
                     onKeyDown={handleKeyDown}
@@ -201,7 +202,15 @@ export default function TextInput({ categories }) {
                           className='px-2 hover:bg-gray-200 cursor-pointer text-base'
                           onClick={() => onClickCategory(result.item)}
                         >
-                          {result.item}
+                          {result.item} caca
+                        </div>
+                      ) : !result.name ? (
+                        <div
+                          key={result}
+                          className='px-2 hover:bg-gray-200 cursor-pointer text-base'
+                          onClick={() => onClickCategory(result)}
+                        >
+                          {result} tt
                         </div>
                       ) : (
                         <div
@@ -209,7 +218,7 @@ export default function TextInput({ categories }) {
                           className='px-2 hover:bg-gray-200 cursor-pointer text-base'
                           onClick={() => onClickCategory(result.name)}
                         >
-                          {result}
+                          {result} zaza
                         </div>
                       )
                     )}

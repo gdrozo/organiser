@@ -1,0 +1,273 @@
+Upload file data
+
+The Google Drive API lets you upload file data when you create or update a File. For information about how to create a metadata-only file, such as a folder, see Create metadata-only files.
+
+There are three types of uploads you can perform:
+
+    Simple upload (uploadType=media): Use this upload type to transfer a small media file (5 MB or less) without supplying metadata. To perform a simple upload, refer to Perform a simple upload.
+
+    Multipart upload (uploadType=multipart): "Use this upload type to transfer a small file (5 MB or less) along with metadata that describes the file, in a single request. To perform a multipart upload, refer to Perform a multipart upload.
+
+    Resumable upload (uploadType=resumable): Use this upload type for large files (greater than 5 MB) and when there's a high chance of network interruption, such as when creating a file from a mobile app. Resumable uploads are also a good choice for most applications because they also work for small files at a minimal cost of one additional HTTP request per upload. To perform a resumable upload, refer to Perform a resumable upload.
+
+The Google API client libraries implement at least one of these types of uploads. Refer to the client library documentation for additional details about how to use each of the types.
+Note: In the Drive API documentation, media refers to all available files with MIME types supported for upload to Drive. For a list of supported MIME types, refer to Google Workspace and Drive supported MIME types.
+Note: Users can upload any file type to Drive using the Drive UI and Drive attempts to detect and automatically set the MIME type. If the MIME type can't be detected, the MIME type is set to application/octet-stream.
+Use PATCH vs. PUT
+
+As a refresher, the HTTP verb PATCH supports a partial file resource update whereas the HTTP verb PUT supports full resource replacement. Note that PUT can introduce breaking changes when adding a new field to an existing resource.
+
+When uploading a file resource, use the following guidelines:
+
+    Use the HTTP verb documented on the API reference for the initial request of a resumable upload or for the only request of a simple or multipart upload.
+    Use PUT for all subsequent requests for a resumable upload once the request has started. These requests are uploading content no matter the method being called.
+
+Perform a simple upload
+
+To perform a simple upload, use the files.create method with uploadType=media.
+Note: If you're using the older Drive API v2, use the files.insert method. You can find code samples in GitHub. Learn how to migrate to Drive API v3.
+
+The following shows how to perform a simple upload:
+HTTP
+
+    Create a POST request to the method's /upload URI with the query parameter of uploadType=media:
+
+    POST https://www.googleapis.com/upload/drive/v3/files?uploadType=media
+
+    Add the file's data to the request body.
+
+    Add these HTTP headers:
+        Content-Type. Set to the MIME media type of the object being uploaded.
+        Content-Length. Set to the number of bytes you upload. If you use chunked transfer encoding, this header is not required.
+
+    Send the request. If the request succeeds, the server returns the HTTP 200 OK status code along with the file's metadata. {HTTP}
+
+Note: To update an existing file, use PATCH.
+
+When you perform a simple upload, basic metadata is created and some attributes are inferred from the file, such as the MIME type or modifiedTime. You can use a simple upload in cases where you have small files and file metadata isn't important.
+Perform a multipart upload
+
+A multipart upload request lets you upload metadata and data in the same request. Use this option if the data you send is small enough to upload again, in its entirety, if the connection fails.
+
+To perform a multipart upload, use the files.create method with uploadType=multipart.
+Note: If you're using the older Drive API v2, use the files.insert method. You can find code samples in GitHub. Learn how to migrate to Drive API v3.
+
+The following shows how to perform a multipart upload:
+Java
+Python
+Node.js
+PHP
+.NET
+HTTP
+drive/snippets/drive_v3/file_snippets/upload_basic.js
+View on GitHub
+
+/\*\*
+
+- Insert new file.
+- @return{obj} file Id
+- \*/
+  async function uploadBasic() {
+  const fs = require('fs');
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+
+// Get credentials and build service
+// TODO (developer) - Use appropriate auth mechanism for your app
+const auth = new GoogleAuth({
+scopes: 'https://www.googleapis.com/auth/drive',
+});
+const service = google.drive({version: 'v3', auth});
+const requestBody = {
+name: 'photo.jpg',
+fields: 'id',
+};
+const media = {
+mimeType: 'image/jpeg',
+body: fs.createReadStream('files/photo.jpg'),
+};
+try {
+const file = await service.files.create({
+requestBody,
+media: media,
+});
+console.log('File Id:', file.data.id);
+return file.data.id;
+} catch (err) {
+// TODO(developer) - Handle error
+throw err;
+}
+}
+
+When creating files, they should specify a file extension in the file's name field. For example, when creating a photo JPEG file, you might specify something like "name": "photo.jpg" in the metadata. Subsequent calls to files.get return the read-only fileExtension property containing the extension originally specified in the name field.
+Perform a resumable upload
+
+A resumable upload lets you resume an upload operation after a communication failure interrupts the flow of data. Because you don't have to restart large file uploads from the start, resumable uploads can also reduce your bandwidth usage if there's a network failure.
+
+Resumable uploads are useful when your file sizes might vary greatly or when there's a fixed time limit for requests (such as mobile OS background tasks and certain App Engine requests). You might also use resumable uploads for situations where you want to show an upload progress bar.
+
+A resumable upload consists of several high-level steps:
+
+    Send the initial request and retrieve the resumable session URI.
+    Upload the data and monitor upload state.
+    (optional) If the upload is disturbed, resume the upload.
+
+Send the initial request
+
+To initiate a resumable upload, use the files.create method with uploadType=resumable.
+Note: If you're using the older Drive API v2, use the files.insert method. You can find code samples in GitHub. Learn how to migrate to Drive API v3.
+HTTP
+
+    Create a POST request to the method's /upload URI with the query parameter of uploadType=resumable:
+
+    POST https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable
+
+    If the initiation request succeeds, the response includes a 200 OK HTTP status code. In addition, it includes a Location header that specifies the resumable session URI:
+
+    HTTP/1.1 200 OK
+    Location: https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&upload_id=xa298sd_sdlkj2
+    Content-Length: 0
+
+    Save the resumable session URI so you can upload the file data and query the upload status. A resumable session URI expires after one week.
+    Note: To update an existing file, use PUT.
+
+    If you have metadata for the file, add the metadata to the request body in JSON format. Otherwise, leave the request body empty.
+
+    Add these HTTP headers:
+        X-Upload-Content-Type. Optional. Set to the MIME type of the file data, which is transferred in subsequent requests. If the MIME type of the data is not specified in the metadata or through this header, the object is served as application/octet-stream.
+        X-Upload-Content-Length. Optional. Set to the number of bytes of file data, which is transferred in subsequent requests.
+        Content-Type. Required if you have metadata for the file. Set to application/json; charset=UTF-8.
+        Content-Length. Required unless you use chunked transfer encoding. Set to the number of bytes in the body of this initial request.
+
+    Send the request. If the session initiation request succeeds, the response includes a 200 OK HTTP status code. In addition, the response includes a Location header that specifies the resumable session URI. Use the resumable session URI to upload the file data and query the upload status. A resumable session URI expires after one week.
+
+    Copy and save the resumable session URL.
+
+    Continue to Upload the content.
+
+Upload the content
+
+There are two ways to upload a file with a resumable session:
+
+    Upload content in a single request: Use this approach when the file can be uploaded in one request, if there's no fixed time limit for any single request, or you don't need to display an upload progress indicator. This approach is best because it requires fewer requests and results in better performance.
+
+    Upload the content in multiple chunks: Use this approach if you must reduce the amount of data transferred in any single request. You might need to reduce data transferred when there's a fixed time limit for individual requests, as can be the case for certain classes of App Engine requests. This approach is also useful if you must provide a customized indicator to show the upload progress.
+
+HTTP - single request
+HTTP - multiple requests
+
+    Create a PUT request to the resumable session URI.
+    Add the file's data to the request body.
+    Add a Content-Length HTTP header, set to the number of bytes in the file.
+    Send the request. If the upload request is interrupted, or if you receive a 5xx response, follow the procedure in Resume an interrupted upload.
+
+Resume an interrupted upload
+
+If an upload request is terminated before a response, or if you receive a 503 Service Unavailable response, then you must resume the interrupted upload.
+HTTP
+
+    To request the upload status, create an empty PUT request to the resumable session URI.
+
+    Add a Content-Range header to indicate that the current position in the file is unknown. For example, set the Content-Range to */2000000 if your total file length is 2,000,000 bytes. If you don't know the full size of the file, set the Content-Range to */*.
+
+    Send the request.
+
+    Process the response:
+        A 200 OK or 201 Created response indicates that the upload was completed, and no further action is necessary.
+        A 308 Resume Incomplete response indicates that you must continue to upload the file.
+        A 404 Not Found response indicates the upload session has expired and the upload must be restarted from the beginning.
+
+    If you received a 308 Resume Incomplete response, process the Range header of the response to determine which bytes the server has received. If the response doesn't have a Range header, no bytes have been received. For example, a Range header of bytes=0-42 indicates that the first 43 bytes of the file were received and that the next chunk to upload would start with byte 44.
+
+    Now that you know where to resume the upload, continue to upload the file beginning with the next byte. Include a Content-Range header to indicate which portion of the file you send. For example, Content-Range: bytes 43-1999999 indicates that you send bytes 44 through 2,000,000.
+
+Handle media upload errors
+
+When you upload media, follow these best practices to handle errors:
+
+    For 5xx errors, resume or retry uploads that fail due to connection interruptions. For further information on handling 5xx errors, refer to 500, 502, 503, 504 errors.
+    For 403 rate limit errors, retry the upload. For further information about handling 403 rate limit errors, refer to 403 error: rateLimitExceeded.
+    For any 4xx errors (including 403) during a resumable upload, restart the upload. These errors indicate the upload session has expired and must be restarted by requesting a new session URI. Upload sessions also expire after one week of inactivity.
+
+Import to Google Docs types
+
+When you create a file in Drive, you might want to convert the file into a Google Workspace file type, such as Google Docs or Sheets. For example, maybe you want to transform a document from your favorite word processor into a Docs to take advantage of its features.
+
+To convert a file to a specific Google Workspace file type, specify the Google Workspace mimeType when creating the file.
+Note: If you're using the older Drive API v2, include the files.insert convert query parameter and specify the Google Workspace mimeType when creating the file.
+
+The following shows how to convert a CSV file to a Google Workspace sheet:
+Note: If you're using the older Drive API v2, you can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+.NET
+drive/snippets/drive_v3/file_snippets/upload_with_conversion.js
+View on GitHub
+
+/\*\*
+
+- Upload file with conversion
+- @return{obj} file Id
+- \*/
+  async function uploadWithConversion() {
+  const fs = require('fs');
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+  // Get credentials and build service
+  // TODO (developer) - Use appropriate auth mechanism for your app
+  const auth = new GoogleAuth({
+  scopes: 'https://www.googleapis.com/auth/drive',
+  });
+  const service = google.drive({version: 'v3', auth});
+  const fileMetadata = {
+  name: 'My Report',
+  mimeType: 'application/vnd.google-apps.spreadsheet',
+  };
+  const media = {
+  mimeType: 'text/csv',
+  body: fs.createReadStream('files/report.csv'),
+  };
+
+try {
+const file = await service.files.create({
+requestBody: fileMetadata,
+media: media,
+fields: 'id',
+});
+console.log('File Id:', file.data.id);
+return file.data.id;
+} catch (err) {
+// TODO(developer) - Handle error
+throw err;
+}
+}
+
+To see if a conversion is available, check the about resource's importFormats array before creating the file. Supported conversions are available dynamically in this array. Some common import formats are:
+From To
+Microsoft Word, OpenDocument Text, HTML, RTF, plain text Google Docs
+Microsoft Excel, OpenDocument Spreadsheet, CSV, TSV, plain text Google Sheets
+Microsoft PowerPoint, OpenDocument Presentation Google Slides
+JPEG, PNG, GIF, BMP, PDF Google Docs (embeds the image in a Doc)
+Plain text (special MIME type), JSON Google Apps Script
+
+When you upload and convert media during an update request to a Docs, Sheets, or Slides file, the full contents of the document are replaced.
+
+When you convert an image to a Docs, Drive uses Optical Character Recognition (OCR) to convert the image to text. You can improve the quality of the OCR algorithm by specifying the applicable BCP 47 language code in the ocrLanguage parameter. The extracted text appears in the Doc alongside the embedded image.
+Use a pre-generated ID to upload files
+
+The Drive API lets you retrieve a list of pre-generated file IDs that are used to upload and create resources. Upload and file creation requests can use these pre-generated IDs. Set the id field in the file metadata.
+
+To create pre-generated IDs, call files.generateIds with the number of IDs to create.
+
+You can safely retry uploads with pre-generated IDs if there's an indeterminate server error or timeout. If the file was successfully created, subsequent retries return a HTTP 409 error and they don't create duplicate files.
+Note: Pre-generated IDs aren't supported for built-in Google Docs creation, or uploads where conversion to built-in Docs format is requested.
+Define indexable text for unknown file types
+Note: Beginning October 31, 2022, indexable text can be shown in result snippets and affects search results in more places, including Cloud Search and the search overlay in Drive and Gmail.
+
+Users can use the Drive UI to find document content. You can also use files.list and the fullText field to search for content from your app. For more information, see Search for files and folders.
+
+Drive automatically indexes documents for search when it recognizes the file type, including text documents, PDFs, images with text, and other common types. If your app saves other types of files (such as drawings, video, and shortcuts), you can improve the discoverability by supplying indexable text in the contentHints.indexableText field of the file.
+
+For more information about indexable text, see Manage file metadata.

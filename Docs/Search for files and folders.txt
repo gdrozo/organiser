@@ -1,0 +1,129 @@
+Search for files and folders
+
+The Google Drive API supports several ways to search files and folders.
+
+You can use the files.list method to return all or some of a Drive user's files and folders. The files.list method can also be used to retrieve the fileId required for some resource methods (such as files.get and files.update).
+Search for all files and folders on the current user's My Drive
+
+Use the files.list method without any parameters to return all files and folders.
+
+GET https://www.googleapis.com/drive/v3/files
+
+Search for specific files or folders on the current user's My Drive
+
+To search for a specific set of files or folders, use the query string q field with the files.list method to filter the files to return by combining one or more search terms.
+
+A query string contains the following three parts:
+
+query_term operator values
+
+Where:
+
+    query_term is the query term or field to search upon.
+
+    operator specifies the condition for the query term.
+
+    values are the specific values you want to use to filter your search results.
+
+To view the query terms and operators that you can use filter files and folders, see Search query terms and operators.
+
+For example, the following query string filters the search to only return folders by setting the MIME type:
+
+q: mimeType = 'application/vnd.google-apps.folder'
+
+For more information on MIME types, see Google Workspace and Google Drive supported MIME types.
+Query string examples
+
+The following table lists examples of some basic query strings. The actual code differs depending on the client library you use for your search.
+Important: The following query terms use fields from the Drive API v3. Some resource fields changed between v2 and v3. For example, files.name replaces files.title. If you're using Drive API v2, adjust these queries to use the v2 fields. For more information, see Drive API v2 and v3 comparison reference.
+
+You must also escape special characters in your file names to make sure the query works correctly. For example, if a filename contains both an apostrophe (') and a backslash ("\") character, use a backslash to escape them: name contains 'quinn\'s paper\\essay'.
+Note: These examples use the unencoded q parameter, where name = 'hello' is encoded as name+%3d+%27hello%27. Client libraries handle this encoding automatically.
+What you want to query Example
+Files with the name "hello" name = 'hello'
+Files with a name containing the words "hello" and "goodbye" name contains 'hello' and name contains 'goodbye'
+Files with a name that does not contain the word "hello" not name contains 'hello'
+Files that contain the text "important" and in the trash fullText contains 'important' and trashed = true
+Files that contain the word "hello" fullText contains 'hello'
+Files that don't have the word "hello" not fullText contains 'hello'
+Files that contain the exact phrase "hello world" fullText contains '"hello world"'
+Files with a query that contains the "\" character (for example, "\authors") fullText contains '\\authors'
+Files that are folders mimeType = 'application/vnd.google-apps.folder'
+Files that are not folders mimeType != 'application/vnd.google-apps.folder'
+Files modified after a given date (default time zone is UTC) modifiedTime > '2012-06-04T12:00:00'
+Image or video files modified after a specific date modifiedTime > '2012-06-04T12:00:00' and (mimeType contains 'image/' or mimeType contains 'video/')
+Files that are starred starred = true
+Files within a collection (for example, the folder ID in the parents collection) '1234567' in parents
+Files in an application data folder in a collection 'appDataFolder' in parents
+Files for which user "test@example.org" is the owner 'test@example.org' in owners
+Files for which user "test@example.org" has write permission 'test@example.org' in writers
+Files for which members of the group "group@example.org" have write permission 'group@example.org' in writers
+Files shared with the authorized user with "hello" in the name sharedWithMe and name contains 'hello'
+Files with a custom file property visible to all apps properties has { key='mass' and value='1.3kg' }
+Files with a custom file property private to the requesting app appProperties has { key='additionalID' and value='8e8aceg2af2ge72e78' }
+Files that have not been shared with anyone or domains (only private, or shared with specific users or groups) visibility = 'limited'
+Filter search results with a client library
+
+The following code sample shows how to use a client library to filter search results to file names and IDs of JPEG files. This sample uses the mimeType query term to narrow results to files of type image/jpeg. It also sets spaces to drive to further narrow the search to the Drive space. When nextPageToken returns null, there are no more results.
+Note: If you're using the older Drive API v2, you can find code samples in GitHub. Learn how to migrate to Drive API v3.
+Java
+Python
+Node.js
+PHP
+drive/snippets/drive_v3/file_snippets/search_file.js
+View on GitHub
+
+/\*\*
+
+- Search file in drive location
+- @return{obj} data file
+- \*/
+  async function searchFile() {
+  const {GoogleAuth} = require('google-auth-library');
+  const {google} = require('googleapis');
+
+// Get credentials and build service
+// TODO (developer) - Use appropriate auth mechanism for your app
+const auth = new GoogleAuth({
+scopes: 'https://www.googleapis.com/auth/drive',
+});
+const service = google.drive({version: 'v3', auth});
+const files = [];
+try {
+const res = await service.files.list({
+q: 'mimeType=\'image/jpeg\'',
+fields: 'nextPageToken, files(id, name)',
+spaces: 'drive',
+});
+Array.prototype.push.apply(files, res.files);
+res.data.files.forEach(function(file) {
+console.log('Found file:', file.name, file.id);
+});
+return res.data.files;
+} catch (err) {
+// TODO(developer) - Handle error
+throw err;
+}
+}
+
+Search for files with a custom file property
+
+To search for files with a custom file property, use either the properties or the appProperties search query term with a key and value. For example, to search for a custom file property that's private to the requesting app called additionalID with a value of 8e8aceg2af2ge72e78:
+
+appProperties has { key='additionalID' and value='8e8aceg2af2ge72e78' }
+
+For more information, see Add custom file properties.
+Search for files with a specific label or field value
+
+To search for files with specific labels, use the labels search query term with a specific label ID. For example: 'labels/LABEL_ID' in labels. If successful, the response body contains all file instances where the label's applied.
+
+To search for files without a specific label ID: Not 'labels/LABEL_ID' in labels.
+
+You can also search for files based on specific field values. For example, to search for files with a text value: labels/LABEL_ID.text_field_id ='TEXT'.
+
+For more information, see Search for files with a specific label or field value.
+Search the corpora
+
+Searches that call files.list use the corpora of user by default. To search other corpora, such as files shared with a domain, set the corpora parameter.
+
+Multiple corpora may be searched in a single query, though incomplete results might be returned if the combined corpora is too large. If incompleteSearch is true in the response body, then all documents weren't returned. If this occurs, you should narrow your query by choosing a different corpora such as user or drive.

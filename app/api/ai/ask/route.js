@@ -53,7 +53,7 @@ export async function POST(req) {
 
       tunnel.sendMessage('status:selecting files')
 
-      console.log('preparedMessages', preparedMessages)
+      console.log('asking ai:', systemPrompt, '---', preparedMessages)
       const response = await generateText({
         model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
         system: systemPrompt, // Define system behavior
@@ -77,7 +77,12 @@ export async function POST(req) {
 */
       tunnel.sendMessage('status:asking AI')
 
-      console.log('messages', messages)
+      console.log(
+        'asking ai:',
+        'ANSWER THE QUESTION COMPLETELY BASED ON THIS TEXT: ' + contents,
+        '---',
+        messages
+      )
       const result = await generateText({
         model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
         system:

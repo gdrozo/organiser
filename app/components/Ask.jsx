@@ -6,7 +6,7 @@ import AutoCenterInput from './AutoCenterInput'
 import { useEffect, useState } from 'react'
 import { fetchStream } from '@/utils/apiClient'
 
-const API = '/api/ask'
+const API = '/api/ai/ask'
 
 export default function Ask() {
   const [messages, setMessages] = useState([])

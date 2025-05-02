@@ -15,3 +15,17 @@
 .tabs-container :first-child + * {
   @apply rounded-bl-none;
 }
+
+.unround {
+  animation: unround 0.4s ease-in-out;
+  animation-fill-mode: forwards;
+}
+
+@keyframes unround {
+  0% {
+    border-top-left-radius: var(--radius-xl);
+  }
+  100% {
+    border-top-left-radius: 0;
+  }
+}
