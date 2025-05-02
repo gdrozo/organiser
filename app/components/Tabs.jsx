@@ -55,10 +55,10 @@ function Tabs({ children, defaultTab }) {
                 ' ' +
                 (selectedTab === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +
-                child.props.className
+                child?.props?.className
               }
             >
-              {child.props.title}
+              {child?.props?.title}
             </Button>
           ))}
         </div>
