@@ -2,18 +2,20 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { useChat } from '@ai-sdk/react'
 import { useEffect, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
+import ACTextArea from './ACTextArea'
 
 const options = {
   keys: ['name'], // Fields to search in the data
   threshold: 0.2, // Adjust this for more or less strict matches (0.0 = exact, 1.0 = very broad)
 }
 
-export default function TextInput({ categories }) {
-  const [ogHeight, setOgHeight] = useState(0)
+const API = '/api/ai/classify'
+
+export default function TextInput() {
+  let categories
 
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/ai/classify', // Points to the updated server-side chat handler
@@ -30,35 +32,6 @@ export default function TextInput({ categories }) {
   const [results, setResults] = useState([])
 
   const submitRef = useRef()
-
-  useEffect(() => {
-    setOgHeight(window.visualViewport.height)
-
-    const onResize = () => {}
-
-    window.addEventListener('resize', onResize)
-
-    return window.removeEventListener('resize', onResize)
-  }, [])
-
-  const onFocusIn = () => {
-    setTimeout(() => {
-      const height = window.visualViewport.height
-      //const height = '400'
-
-      const container = document.getElementById('container')
-      container.style.height = `${height}px`
-      container.style.minHeight = `${height}px`
-      container.style.maxHeight = `${height}px`
-    }, 250)
-  }
-
-  const onFocusOut = () => {
-    const container = document.getElementById('container')
-    container.style.height = `${ogHeight}px`
-    container.style.minHeight = `${ogHeight}px`
-    container.style.maxHeight = `${ogHeight}px`
-  }
 
   useEffect(() => {
     document.getElementById('prompt').focus()
@@ -143,7 +116,7 @@ export default function TextInput({ categories }) {
       <div className='relative grow flex justify-center'>
         {/* User input form */}
         <form onSubmit={interceptSubmit} className='flex flex-col gap-4 grow'>
-          <Textarea
+          <ACTextArea
             className='border border-gray-300 rounded-md p-2 bg-white grow'
             placeholder='Enter your message'
             name='prompt' // Required for useChat
@@ -151,8 +124,6 @@ export default function TextInput({ categories }) {
             onChange={interceptInputChange}
             disabled={status !== 'ready'}
             id='prompt'
-            onFocus={onFocusIn}
-            onBlur={onFocusOut}
           />
           <Button
             ref={submitRef}

@@ -7,7 +7,6 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { SignedIn } from '@clerk/nextjs'
-import { redirect } from 'next/navigation'
 
 import Tabs, { Tab } from './components/Tabs'
 import Ask from './components/Ask'
