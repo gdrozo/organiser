@@ -80,7 +80,7 @@ export default async function Home() {
             <Ask />
           </Tab>
           <Tab title='Categories' className='block lg:hidden'>
-            {categoriesEl}
+            <>{categoriesEl}</>
           </Tab>
         </Tabs>
       </div>

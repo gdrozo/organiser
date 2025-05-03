@@ -55,10 +55,11 @@ function Tabs({ children, defaultTab }) {
                 ' ' +
                 (selectedTab === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +
-                child?.props?.className
+                child.props?.className
               }
             >
               {child?.props?.title}
+              {!child.props && child}
             </Button>
           ))}
         </div>
@@ -92,7 +93,7 @@ export function Tab({ children, title }) {
         children.length > 0 &&
         children.map &&
         children.map((child, index) => <div key={index}>{child}</div>)}
-      {children && !children.length && children}
+      {children && !children.length && <>{children}</>}
     </>
   )
 }
