@@ -36,7 +36,7 @@ export default async function Home() {
       {/* Header */}
       <div className='w-screen flex justify-center items-center h-20 min-h-20'>
         <header className='flex justify-between items-center py-2 px-4 grow bg-white/70 m-4 rounded-xl'>
-          <Image src='/logo.png' width={150} height={150} alt='logo' />
+          <Image src='/logo.png' width={150} height={35} alt='Organizer' />
           <SignedOut>
             <SignInButton />
             <SignUpButton />
