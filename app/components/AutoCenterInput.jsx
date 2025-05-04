@@ -7,19 +7,31 @@ const AutoCenterInput = ({ className = '', ...props }) => {
   const [ogHeight, setOgHeight] = useState(0)
 
   useEffect(() => {
-    setOgHeight(window.visualViewport.height)
+    setTimeout(() => {
+      setOgHeight(window.visualViewport.height)
+    }, 50)
   }, [])
 
   const onFocusIn = () => {
-    setTimeout(() => {
-      const height = window.visualViewport.height
-      //const height = '400'
+    loopResize(0)
+  }
 
-      const container = document.getElementById('container')
-      container.style.height = `${height}px`
-      container.style.minHeight = `${height}px`
-      container.style.maxHeight = `${height}px`
-    }, 250)
+  function loopResize(i) {
+    if (i >= 100) return
+
+    const height = window.visualViewport.height
+
+    if (height >= ogHeight - 100 && height <= ogHeight + 100) {
+      i++
+      setTimeout(() => loopResize(i), 25)
+      return
+    }
+
+    const container = document.getElementById('container')
+    container.style.height = `${height}px`
+    container.style.minHeight = `${height}px`
+    container.style.maxHeight = `${height}px`
+    //alert(`resized og:${ogHeight} new:${height}`)
   }
 
   const onFocusOut = () => {

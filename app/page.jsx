@@ -1,5 +1,5 @@
 import { GetCategories } from '@/logic/Categories'
-import TextInput from './components/TextInput'
+import TextInput from './components/TextClasifier'
 import {
   SignedOut,
   SignInButton,
@@ -31,12 +31,20 @@ export default async function Home() {
   return (
     <div
       id='container'
-      className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent'
+      className='h-dvh w-dvw overflow-hidden relative flex flex-col bg-transparent transition-all duration-300 ease-in-out'
     >
       {/* Header */}
       <div className='w-screen flex justify-center items-center h-20 min-h-20'>
-        <header className='flex justify-between items-center py-2 px-4 grow bg-white/70 m-4 rounded-xl'>
-          <Image src='/text_logo.png' width={150} height={35} alt='Organizer' />
+        <header className='flex justify-between items-center py-2 px-4 grow bg-white/70s bg-transparent m-4 rounded-xl'>
+          <div className='flex items-center'>
+            <Image src='/icon.png' width={40} height={40} alt='Organizer' />
+            <Image
+              src='/text_logo.png'
+              width={150}
+              height={35}
+              alt='Organizer'
+            />
+          </div>
           <SignedOut>
             <SignInButton />
             <SignUpButton />
@@ -49,11 +57,12 @@ export default async function Home() {
 
       <div className='flex justify-evenly items-stretch h-[calc(100%-5rem)] min-h-[calc(100%-5rem)] max-h-[calc(100%-5rem)] '>
         {/* */}
-        {/* Left sidebar */}
+        {/* Left sidebar 
         <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
           <h3 className='p-8 pb-2 text-xl font-bold'>Files</h3>
           {categoriesEl}
         </div>
+          */}
 
         {/* tabs */}
         <Tabs defaultTab={0}>

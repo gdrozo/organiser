@@ -117,7 +117,7 @@ export default function TextInput() {
         {/* User input form */}
         <form onSubmit={interceptSubmit} className='flex flex-col gap-4 grow'>
           <ACTextArea
-            className='border border-gray-300 rounded-md p-2 bg-white grow'
+            className='border-none rounded-md p-2 bg-white grow focus-visible:shadow-none focus-visible:border-none focus-visible:ring-none'
             placeholder='Enter your message'
             name='prompt' // Required for useChat
             value={input}

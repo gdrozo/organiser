@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 .active-tab {
-  @apply bg-transparent cursor-default;
+  @apply bg-transparent cursor-default font-bold;
 }
 
 .inactive-tab {

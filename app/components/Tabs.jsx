@@ -12,8 +12,18 @@ function Tabs({ children, defaultTab }) {
 
   return (
     <div className='grow flex flex-col m-4 max-w-[97vw] max-h-full'>
-      <div className='h-10 flex justify-start '>
-        <div className='flex relative tabs tabs-container'>
+      <div
+        className='flex justify-center absolute sm:top-6  left-0 right-0
+                   bottom-0 sm:bottom-auto
+      '
+      >
+        <div
+          className='flex relative tabs tabs-container bg-white drop-shadow-lg 
+                    w-full rounded-b-none rounded-t-2xl justify-between px-2
+                    sm:w-auto sm:rounded-full '
+        >
+          {/*  
+
           <div
             className='absolute bg-white/80 rounded-t-lg bottom-0 top-0 w-28 transition-all duration-300 ease-in-out'
             style={{ left: 7 * selectedTab + 'rem' }}
@@ -45,13 +55,14 @@ function Tabs({ children, defaultTab }) {
               />
             </div>
           </div>
+        */}
 
           {children.map((child, index) => (
             <Button
               key={index}
               onClick={() => tabClicked(index)}
               className={
-                'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-28 rounded-b-none' +
+                'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-26 py-4 rounded-b-none' +
                 ' ' +
                 (selectedTab === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +
@@ -70,7 +81,7 @@ function Tabs({ children, defaultTab }) {
         children.map &&
         children.map((c, index) => (
           <div
-            className={`w-full z-20 bg-white/80 text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex 
+            className={`w-full z-20 bg-white/80s bg-transparent text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex 
               ${selectedTab === index ? 'block' : 'hidden'} ${
               index === 0 ? 'unround' : ''
             }`}
