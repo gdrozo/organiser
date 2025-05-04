@@ -9,7 +9,6 @@ export default function ACTextArea({ className = '', ...props }) {
   useEffect(() => {
     setTimeout(() => {
       setOgHeight(window.visualViewport.height)
-      if (inputRef.current) loopResize(0)
     }, 50)
   }, [])
 
@@ -18,10 +17,7 @@ export default function ACTextArea({ className = '', ...props }) {
   }
 
   function loopResize(i) {
-    if (i >= 100) {
-      alert('done')
-      return
-    }
+    if (i >= 100) return
 
     const height = window.visualViewport.height
 
@@ -51,6 +47,7 @@ export default function ACTextArea({ className = '', ...props }) {
       ref={inputRef}
       onFocus={onFocusIn}
       onBlur={onFocusOut}
+      onPointerDown={onFocusIn}
       {...props}
     />
   )

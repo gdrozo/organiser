@@ -13,6 +13,10 @@ export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang='en'>
+        <head>
+          {/* Add this link tag */}
+          <link rel='icon' href='/favicon.png' type='image/png' sizes='32x32' />
+        </head>
         <body className={inter.className + ''}>
           <div
             id='h-container'

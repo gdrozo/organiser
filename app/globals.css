@@ -123,7 +123,7 @@
 .bg-gradient-primary {
   background-image: linear-gradient(
     123.5deg,
-    rgba(244, 219, 251, 1) 29.3%,
-    rgba(255, 214, 214, 1) 67.1%
+    rgb(252, 239, 255) 29.3%,
+    rgb(255, 237, 237) 67.1%
   );
 }
