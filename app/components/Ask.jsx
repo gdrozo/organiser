@@ -119,15 +119,32 @@ export default function Ask() {
       </div>
 
       <div className=' max-w-2xl m-4 w-[min(var(--container-2xl),100%)] gap-2 flex flex-col items-center smb-40 h-9 max-h-9 min-h-9'>
-        <div className='w-full pt-5s flex justify-center px-6 gap-2'>
+        <div className='w-fulls pt-5s flex justify-center px-4 py-2 gap-2 bg-white rounded-full shadow-lg'>
           <AutoCenterInput
             name='prompt'
             value={input}
             onChange={handleInputChange}
-            className='max-w-md'
+            className='max-w-mds border-none shadow-none'
           />
-          <Button className='px-8' type='submit' onClick={handleSubmit}>
-            Ask
+          <Button
+            className=' rounded-full h-9 w-9 flex items-center justify-center p-0'
+            type='submit'
+            onClick={handleSubmit}
+          >
+            <svg
+              width='24'
+              height='24'
+              viewBox='0 0 24 24'
+              fill='none'
+              stroke='currentColor'
+              strokeWidth='2'
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              className='size-5'
+            >
+              <path d='m5 12 7-7 7 7' />
+              <path d='M12 19V5' />
+            </svg>
           </Button>
         </div>
       </div>

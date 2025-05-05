@@ -7,6 +7,8 @@ import { useEffect, useRef, useState } from 'react'
 import Fuse from 'fuse.js'
 import ACTextArea from './ACTextArea'
 
+import './TextClasifier.css'
+
 const options = {
   keys: ['name'], // Fields to search in the data
   threshold: 0.2, // Adjust this for more or less strict matches (0.0 = exact, 1.0 = very broad)
@@ -115,10 +117,13 @@ export default function TextInput() {
 
       <div className='relative grow flex justify-center'>
         {/* User input form */}
-        <form onSubmit={interceptSubmit} className='flex flex-col gap-4 grow'>
+        <form
+          onSubmit={interceptSubmit}
+          className='flex flex-col gap-4 grow | text-animation'
+        >
           <ACTextArea
-            className='border-none rounded-md p-2 bg-white grow focus-visible:shadow-none focus-visible:border-none focus-visible:ring-none'
-            placeholder='Enter your message'
+            className='border-none rounded-md p-2 bg-transparent shadow-none text-base grow focus-visible:shadow-none focus-visible:border-none 
+            focus-visible:ring-none '
             name='prompt' // Required for useChat
             value={input}
             onChange={interceptInputChange}
@@ -133,6 +138,7 @@ export default function TextInput() {
           >
             Classify
           </Button>
+          {/* Text Animation */}
         </form>
         {submitted && (
           <div className='fixed top-0 left-0 right-0 bottom-0 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center p-30 gap-2'>

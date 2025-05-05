@@ -70,10 +70,10 @@ export default async function Home() {
             <div className='bg-transparent rounded-xl grow px-10 py-4 flex flex-col max-h-full overflow-hidden'>
               <header className='flex justify-center'>
                 <div className='container mx-auto'>
-                  <h1 className='text-2xl font-bold text-center pt-4'>
+                  <h1 className='text-2xl font-bold text-center sm:pt-4'>
                     Text Classification
                   </h1>
-                  <p className='text-center pb-4 pt-1'>
+                  <p className='text-center pb-4 pt-1 text-black/70'>
                     Input your text and have it categorize by the AI.
                   </p>
                 </div>

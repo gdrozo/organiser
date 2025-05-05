@@ -20,42 +20,12 @@ function Tabs({ children, defaultTab }) {
         <div
           className='flex relative tabs tabs-container bg-white drop-shadow-lg 
                     w-full rounded-b-none rounded-t-2xl justify-between px-2
-                    sm:w-auto sm:rounded-full '
+                    sm:w-auto sm:rounded-full sm:bg-white/70'
         >
-          {/*  
-
           <div
-            className='absolute bg-white/80 rounded-t-lg bottom-0 top-0 w-28 transition-all duration-300 ease-in-out'
+            className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block'
             style={{ left: 7 * selectedTab + 'rem' }}
-          >
-            <div
-              className={
-                'absolute bottom-0 -right-3 bg-transparent' +
-                ' ' +
-                (selectedTab === children.length - 1 ? '' : '')
-              }
-            >
-              <img
-                src='border.svg'
-                className='size-3 mr-px mt-px fill-white/80 opacity-80'
-                alt='SVG Image'
-              />
-            </div>
-            <div
-              className={
-                'absolute bottom-0 -left-3 bg-transparent transition-all duration-300 ease-in-out' +
-                ' ' +
-                (selectedTab === 0 ? 'opacity-0' : '')
-              }
-            >
-              <img
-                src='border.svg'
-                className='size-3 mr-px mt-px fill-white/80 opacity-80 flip -scale-x-100'
-                alt='SVG Image'
-              />
-            </div>
-          </div>
-        */}
+          ></div>
 
           {children.map((child, index) => (
             <Button

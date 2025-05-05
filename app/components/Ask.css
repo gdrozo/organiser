@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 
 .user-message {
-  @apply text-black bg-[#f2e6f3] rounded-md px-4 py-3 ml-6 self-end;
+  @apply text-black bg-white rounded-md px-4 py-3 ml-6 self-end;
 }
 
 .ai-message {

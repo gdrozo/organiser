@@ -1,0 +1,303 @@
+/*
+.text-animation::before {
+  content: '';
+  position: absolute;
+  padding: 0.5rem;
+  animation: text-animation 1s ease-in-out infinite;
+}
+
+@keyframes text-animation {
+  0% {
+    content: 'Here ';
+  }
+
+  5% {
+    content: 'Here you ';
+  }
+
+  10% {
+    content: 'Here you can ';
+  }
+
+  15% {
+    content: 'Here you can type ';
+  }
+
+  20% {
+    content: 'Here you can type or ';
+  }
+
+  25% {
+    content: 'Here you can type or paste ';
+  }
+
+  30% {
+    content: 'Here you can type or paste the ';
+  }
+
+  35% {
+    content: 'Here you can type or paste the text ';
+  }
+
+  40% {
+    content: 'Here you can type or paste the text you ';
+  }
+
+  45% {
+    content: 'Here you can type or paste the text you want ';
+  }
+
+  50% {
+    content: 'Here you can type or paste the text you want to ';
+  }
+
+  55% {
+    content: 'Here you can type or paste the text you want to classify.';
+  }
+
+  60% {
+    content: 'Here you can type or paste the text you want to classify. :';
+  }
+
+  65% {
+    content: 'Here you can type or paste the text you want to classify. :)';
+  }
+  70% {
+    content: '{4%0%';
+  }
+
+  75% {
+    content: "'1_0<";
+  }
+
+  80% {
+    content: '{0%';
+  }
+
+  85% {
+    content: "]>'";
+  }
+
+  90% {
+    content: '4';
+  }
+
+  95% {
+    content: '2';
+  }
+
+  100% {
+    content: '';
+  }
+}
+*/
+
+@keyframes typing {
+  0% {
+    content: '';
+  }
+  1.66% {
+    content: 'H';
+  }
+  3.33% {
+    content: 'He';
+  }
+  5% {
+    content: 'Her';
+  }
+  6.66% {
+    content: 'Here';
+  }
+  8.33% {
+    content: 'Here ';
+  }
+  10% {
+    content: 'Here y';
+  }
+  11.66% {
+    content: 'Here yo';
+  }
+  13.33% {
+    content: 'Here you';
+  }
+  15% {
+    content: 'Here you ';
+  }
+  16.66% {
+    content: 'Here you c';
+  }
+  18.33% {
+    content: 'Here you ca';
+  }
+  20% {
+    content: 'Here you can';
+  }
+  21.66% {
+    content: 'Here you can ';
+  }
+  23.33% {
+    content: 'Here you can t';
+  }
+  25% {
+    content: 'Here you can ty';
+  }
+  26.66% {
+    content: 'Here you can typ';
+  }
+  28.33% {
+    content: 'Here you can type';
+  }
+  30% {
+    content: 'Here you can type ';
+  }
+  31.66% {
+    content: 'Here you can type o';
+  }
+  33.33% {
+    content: 'Here you can type or';
+  }
+  35% {
+    content: 'Here you can type or ';
+  }
+  36.66% {
+    content: 'Here you can type or p';
+  }
+  38.33% {
+    content: 'Here you can type or pa';
+  }
+  40% {
+    content: 'Here you can type or pas';
+  }
+  41.66% {
+    content: 'Here you can type or past';
+  }
+  43.33% {
+    content: 'Here you can type or paste';
+  }
+  45% {
+    content: 'Here you can type or paste ';
+  }
+  46.66% {
+    content: 'Here you can type or paste t';
+  }
+  48.33% {
+    content: 'Here you can type or paste th';
+  }
+  50% {
+    content: 'Here you can type or paste the';
+  }
+  51.66% {
+    content: 'Here you can type or paste the ';
+  }
+  53.33% {
+    content: 'Here you can type or paste the t';
+  }
+  55% {
+    content: 'Here you can type or paste the te';
+  }
+  56.66% {
+    content: 'Here you can type or paste the tex';
+  }
+  58.33% {
+    content: 'Here you can type or paste the text';
+  }
+  60% {
+    content: 'Here you can type or paste the text ';
+  }
+  61.66% {
+    content: 'Here you can type or paste the text y';
+  }
+  63.33% {
+    content: 'Here you can type or paste the text yo';
+  }
+  65% {
+    content: 'Here you can type or paste the text you';
+  }
+  66.66% {
+    content: 'Here you can type or paste the text you ';
+  }
+  68.33% {
+    content: 'Here you can type or paste the text you w';
+  }
+  70% {
+    content: 'Here you can type or paste the text you wa';
+  }
+  71.66% {
+    content: 'Here you can type or paste the text you wan';
+  }
+  73.33% {
+    content: 'Here you can type or paste the text you want';
+  }
+  75% {
+    content: 'Here you can type or paste the text you want ';
+  }
+  76.66% {
+    content: 'Here you can type or paste the text you want t';
+  }
+  78.33% {
+    content: 'Here you can type or paste the text you want to';
+  }
+  80% {
+    content: 'Here you can type or paste the text you want to ';
+  }
+  81.66% {
+    content: 'Here you can type or paste the text you want to c';
+  }
+  83.33% {
+    content: 'Here you can type or paste the text you want to cl';
+  }
+  85% {
+    content: 'Here you can type or paste the text you want to cla';
+  }
+  86.66% {
+    content: 'Here you can type or paste the text you want to clas';
+  }
+  88.33% {
+    content: 'Here you can type or paste the text you want to classi';
+  }
+  90% {
+    content: 'Here you can type or paste the text you want to classif';
+  }
+  91.66% {
+    content: 'Here you can type or paste the text you want to classify';
+  }
+  93.33% {
+    content: 'Here you can type or paste the text you want to classify.';
+  }
+  95% {
+    content: 'Here you can type or paste the text you want to classify. ';
+  }
+  96.66% {
+    content: 'Here you can type or paste the text you want to classify. :';
+  }
+  98.33% {
+    content: 'Here you can type or paste the text you want to classify. :)';
+  }
+  100% {
+    content: 'Here you can type or paste the text you want to classify. :)';
+  }
+}
+
+@keyframes blink-caret {
+  /*
+  */
+  from,
+  to {
+    border-right-color: transparent;
+  }
+  50% {
+    border-right-color: black;
+  }
+}
+
+.text-animation::before {
+  position: absolute;
+  margin: 0.5rem;
+
+  overflow: hidden; /* Hide the overflowing text */
+  border-right: 1px solid black; /* The blinking cursor */
+  /*
+  */
+  animation: typing 8s infinite, blink-caret 0.75s step-end infinite;
+  content: 'Here you can type or paste the text you want to classify. :)';
+}
