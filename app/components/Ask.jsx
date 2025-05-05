@@ -142,7 +142,7 @@ export default function Ask() {
               strokeWidth='2'
               strokeLinecap='round'
               strokeLinejoin='round'
-              className='size-5 '
+              className='size-5 animate-bounce-small'
             >
               <path d='m5 12 7-7 7 7' />
               <path d='M12 19V5' />

@@ -1,10 +1,23 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './tabs.css'
 
 function Tabs({ children, defaultTab }) {
-  const [selectedTab, setSelectedTab] = useState(defaultTab)
+  const [selectedTab, setSelectedTab] = useState()
+
+  useEffect(() => {
+    //Get the last selected tab
+    const lastSelectedTab = parseInt(localStorage.getItem('selectedTab'))
+    if (lastSelectedTab) setSelectedTab(lastSelectedTab)
+    else setSelectedTab(defaultTab)
+  }, [])
+
+  useEffect(() => {
+    //Save the last selected tab
+    if (selectedTab === -1) return
+    localStorage.setItem('selectedTab', selectedTab)
+  }, [selectedTab])
 
   function tabClicked(index) {
     setSelectedTab(index)
