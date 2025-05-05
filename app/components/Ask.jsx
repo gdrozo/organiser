@@ -67,15 +67,17 @@ export default function Ask() {
   }
 
   return (
-    <div className='w-full h-full min-h-full max-h-full flex flex-col justify-center items-center'>
-      <div
-        className={`shrink max-h-[calc(100%-2.25rem)] flex flex-col items-center ${
-          messages?.length > 0 ? 'grow-animation' : ''
-        }`}
-      >
-        <header className='flex justify-center min-h-24 h-2min-h-24 max-h-2min-h-24 xsm:min-h-24'>
+    <div
+      className={`w-full flex flex-col justify-center items-center absolute bottom-14 top-14 mt-6 ${
+        messages?.length > 0 ? 'grow-animation' : ''
+      }`}
+    >
+      <div className={`flex flex-col items-center`}>
+        <header className='flex justify-center'>
           <div className='container mx-auto'>
-            <h1 className='text-2xl font-bold text-center pt-4'>Ask the AI</h1>
+            <h1 className='text-2xl font-bold text-center pt-4sd'>
+              Ask the AI
+            </h1>
             <p className='text-center pb-4s px-6 pt-1'>
               Ask the AI anything you want about your files.
             </p>
@@ -118,13 +120,13 @@ export default function Ask() {
         </div>
       </div>
 
-      <div className=' max-w-2xl m-4 w-[min(var(--container-2xl),100%)] gap-2 flex flex-col items-center smb-40 h-9 max-h-9 min-h-9'>
+      <div className=' max-w-2xl pt-4 w-[min(var(--container-2xl),100%)] gap-2 flex flex-col items-center min-h-9'>
         <div className='w-fulls pt-5s flex justify-center px-4 py-2 gap-2 bg-white rounded-full shadow-lg'>
           <AutoCenterInput
             name='prompt'
             value={input}
             onChange={handleInputChange}
-            className='max-w-mds border-none shadow-none'
+            className='max-w-mds border-none shadow-none w-[min(20rem,70vw)]'
           />
           <Button
             className=' rounded-full h-9 w-9 flex items-center justify-center p-0'
@@ -140,7 +142,7 @@ export default function Ask() {
               strokeWidth='2'
               strokeLinecap='round'
               strokeLinejoin='round'
-              className='size-5'
+              className='size-5 '
             >
               <path d='m5 12 7-7 7 7' />
               <path d='M12 19V5' />

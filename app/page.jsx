@@ -67,7 +67,7 @@ export default async function Home() {
         {/* tabs */}
         <Tabs defaultTab={0}>
           <Tab title='Write'>
-            <div className='bg-transparent rounded-xl grow px-10 py-4 flex flex-col max-h-full overflow-hidden'>
+            <div className='bg-transparent rounded-xl grow px-10 py-4 flex flex-col max-h-full overflow-hidden mb-14'>
               <header className='flex justify-center'>
                 <div className='container mx-auto'>
                   <h1 className='text-2xl font-bold text-center sm:pt-4'>

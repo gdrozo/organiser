@@ -11,10 +11,10 @@ function Tabs({ children, defaultTab }) {
   }
 
   return (
-    <div className='grow flex flex-col m-4 max-w-[97vw] max-h-full'>
+    <div className='grow flex flex-col max-w-[97vw] max-h-full'>
       <div
         className='flex justify-center absolute sm:top-6  left-0 right-0
-                   bottom-0 sm:bottom-auto
+                   bottom-0 sm:bottom-auto z-30
       '
       >
         <div
@@ -23,7 +23,7 @@ function Tabs({ children, defaultTab }) {
                     sm:w-auto sm:rounded-full sm:bg-white/70'
         >
           <div
-            className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block'
+            className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block '
             style={{ left: 7 * selectedTab + 'rem' }}
           ></div>
 
@@ -51,7 +51,7 @@ function Tabs({ children, defaultTab }) {
         children.map &&
         children.map((c, index) => (
           <div
-            className={`w-full z-20 bg-white/80s bg-transparent text-black rounded-xl h-[calc(100%-2.5rem)] min-h-[calc(100%-2.5rem)] max-h-[calc(100%-2.5rem)] flex 
+            className={`w-full z-20 bg-transparent text-black rounded-xl h-full flex 
               ${selectedTab === index ? 'block' : 'hidden'} ${
               index === 0 ? 'unround' : ''
             }`}
