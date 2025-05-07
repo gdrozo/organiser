@@ -12,6 +12,8 @@ import Tabs, { Tab } from './components/Tabs'
 import Ask from './components/Ask'
 import Categories from './components/Categories'
 import Image from 'next/image'
+import BurgerOpener from './components/BurgerOpener'
+import SideBar from './components/SideBar'
 
 export default async function Home() {
   const start = performance.now()
@@ -57,12 +59,9 @@ export default async function Home() {
 
       <div className='flex justify-evenly items-stretch h-[calc(100%-5rem)] min-h-[calc(100%-5rem)] max-h-[calc(100%-5rem)] '>
         {/* */}
-        {/* Left sidebar 
-        <div className=' w-60 absolutes top-0 left-0 h-full hidden lg:block'>
-          <h3 className='p-8 pb-2 text-xl font-bold'>Files</h3>
-          {categoriesEl}
-        </div>
-          */}
+        {/* Left sidebar
+         */}
+        <SideBar categoriesEl={categoriesEl} />
 
         {/* tabs */}
         <Tabs defaultTab={0}>

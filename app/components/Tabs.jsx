@@ -33,7 +33,7 @@ function Tabs({ children, defaultTab }) {
         <div
           className='flex relative tabs tabs-container bg-white drop-shadow-lg 
                     w-full rounded-b-none rounded-t-2xl justify-between px-2
-                    sm:w-auto sm:rounded-full sm:bg-white/70'
+                    sm:w-auto sm:rounded-full sm:bg-white/70 sm:absolute'
         >
           <div
             className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block '
@@ -45,7 +45,7 @@ function Tabs({ children, defaultTab }) {
               key={index}
               onClick={() => tabClicked(index)}
               className={
-                'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-26 py-4 rounded-b-none' +
+                'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-26 py-3 rounded-b-none' +
                 ' ' +
                 (selectedTab === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +

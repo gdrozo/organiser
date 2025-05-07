@@ -1,0 +1,274 @@
+Add data to Cloud Firestore
+
+This document explains how to set, add, or update individual documents in Cloud Firestore. To write data in bulk, see Transactions and batched writes.
+Overview
+
+You can write data to Cloud Firestore in one of the following ways:
+
+    Set the data of a document within a collection, explicitly specifying a document identifier.
+    Add a new document to a collection. In this case, Cloud Firestore automatically generates the document identifier.
+    Create an empty document with an automatically generated identifier, and assign data to it later.
+
+Note: While the code samples cover multiple languages, the text explaining the samples refers to the Web method names.
+Before you begin
+
+Before you can initialize Cloud Firestore to set, add, or update data, you must complete the following steps:
+
+    Create a Cloud Firestore database. For more information, see Get started with Cloud Firestore
+    If you use the web or mobile client libraries, authenticate with security rules. For more information, see Getting started with security rules.
+    If you use the server client libraries or REST API, authenticate with Identity and Access Management (IAM). For more information, see Security for server client libraries.
+
+Initialize Cloud Firestore
+
+Initialize an instance of Cloud Firestore:
+Web
+Web
+Swift
+Objective-C
+Kotlin
+Java
+Dart
+Python
+Python
+Node.js
+The Cloud Firestore SDK is initialized in different ways depending on your environment. Below are the most common methods. For a complete reference, see Initialize the Admin SDK.
+
+    Initialize on Cloud Functions
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp();
+
+const db = getFirestore();
+
+Initialize on Google Cloud
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp({
+credential: applicationDefault()
+});
+
+const db = getFirestore();
+
+Initialize on your own server
+
+To use the Firebase Admin SDK on your own server (or any other Node.js environment), use a service account. Go to IAM & admin > Service accounts in the Google Cloud console. Generate a new private key and save the JSON file. Then use the file to initialize the SDK:
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+const serviceAccount = require('./path/to/serviceAccountKey.json');
+
+initializeApp({
+credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
+
+Set a document
+
+To create or overwrite a single document, use the following language-specific set() methods:
+
+Use the set() method:
+
+const data = {
+name: 'Los Angeles',
+state: 'CA',
+country: 'USA'
+};
+
+// Add a new document in collection "cities" with ID 'LA'
+const res = await db.collection('cities').doc('LA').set(data);
+
+If the document does not exist, it will be created. If the document does exist, its contents will be overwritten with the newly provided data, unless you specify that the data should be merged into the existing document, as follows:
+
+const cityRef = db.collection('cities').doc('BJ');
+
+const res = await cityRef.set({
+capital: true
+}, { merge: true });
+
+If you're not sure whether the document exists, pass the option to merge the new data with any existing document to avoid overwriting entire documents. For documents that contain maps, if you specify a set with a field that contains an empty map, the map field of the target document is overwritten.
+Data types
+
+Cloud Firestore lets you write a variety of data types inside a document, including strings, booleans, numbers, dates, null, and nested arrays and objects. Cloud Firestore always stores numbers as doubles, regardless of what type of number you use in your code.
+
+const data = {
+stringExample: 'Hello, World!',
+booleanExample: true,
+numberExample: 3.14159265,
+dateExample: Timestamp.fromDate(new Date('December 10, 1815')),
+arrayExample: [5, true, 'hello'],
+nullExample: null,
+objectExample: {
+a: 5,
+b: true
+}
+};
+
+const res = await db.collection('data').doc('one').set(data);
+
+Custom objects
+
+Using Map or Dictionary objects to represent your documents is often inconvenient, so Cloud Firestore supports writing documents with custom classes. Cloud Firestore converts the objects to supported data types.
+
+Using custom classes, you can rewrite the initial example in the following way:
+
+// Node.js uses JavaScript objects
+
+// Node.js uses JavaScript objects
+
+Add a document
+
+When you use set() to create a document, you must specify an ID for the document to create, as shown in the following example:
+
+await db.collection('cities').doc('new-city-id').set(data);
+
+If there isn't a meaningful ID for the document, Cloud Firestore can auto-generate an ID for you. You can call the following language-specific add() methods:
+
+Use the add() method:
+
+// Add a new document with a generated id.
+const res = await db.collection('cities').add({
+name: 'Tokyo',
+country: 'Japan'
+});
+
+console.log('Added document with ID: ', res.id);
+
+Important: Unlike "push IDs" in the Firebase Realtime Database, Cloud Firestore auto-generated IDs don't provide any automatic ordering. If you want to order your documents by creation date, store a timestamp as a field in the documents.
+
+In some cases, it can be useful to create a document reference with an auto-generated ID, then use the reference later. For this use case, you can call doc() in the following way:
+
+const newCityRef = db.collection('cities').doc();
+
+// Later...
+const res = await newCityRef.set({
+// ...
+});
+
+In the backend, .add(...) and .doc().set(...) are equivalent, so you can use either option.
+Update a document
+
+To update some fields of a document without overwriting the entire document, use the following language-specific update() methods:
+
+Use the update() method:
+
+const cityRef = db.collection('cities').doc('DC');
+
+// Set the 'capital' field of the city
+const res = await cityRef.update({capital: true});
+
+Server Timestamp
+
+You can set a field in your document to a server timestamp which tracks when the server receives the update.
+
+// Create a document reference
+const docRef = db.collection('objects').doc('some-id');
+
+// Update the timestamp field with the value from the server
+const res = await docRef.update({
+timestamp: FieldValue.serverTimestamp()
+});
+
+When updating multiple timestamp fields inside of a transaction, each field receives the same server timestamp value.
+Update fields in nested objects
+
+If your document contains nested objects, you can use the dot notation to reference nested fields within the document when you call update():
+
+const initialData = {
+name: 'Frank',
+age: 12,
+favorites: {
+food: 'Pizza',
+color: 'Blue',
+subject: 'recess'
+}
+};
+
+// ...
+const res = await db.collection('users').doc('Frank').update({
+age: 13,
+'favorites.color': 'Red'
+});
+
+Dot notation allows you to update a single nested field without overwriting other nested fields. If you update a nested field without dot notation, you will overwrite the entire map field, as shown in the following example:
+Web
+
+// Create our initial doc
+db.collection("users").doc("frank").set({
+name: "Frank",
+favorites: {
+food: "Pizza",
+color: "Blue",
+subject: "Recess"
+},
+age: 12
+}).then(function() {
+console.log("Frank created");
+});
+
+// Update the doc without using dot notation.
+// Notice the map value for favorites.
+db.collection("users").doc("frank").update({
+favorites: {
+food: "Ice Cream"
+}
+}).then(function() {
+console.log("Frank food updated");
+});
+
+/_
+Ending State, favorite.color and favorite.subject are no longer present:
+/users
+/frank
+{
+name: "Frank",
+favorites: {
+food: "Ice Cream",
+},
+age: 12
+}
+_/
+
+Update elements in an array
+
+If your document contains an array field, you can use arrayUnion() and arrayRemove() to add and remove elements. arrayUnion() adds elements to an array but only elements not already present. arrayRemove() removes all instances of each given element.
+
+// ...
+const washingtonRef = db.collection('cities').doc('DC');
+
+// Atomically add a new region to the "regions" array field.
+const unionRes = await washingtonRef.update({
+regions: FieldValue.arrayUnion('greater_virginia')
+});
+// Atomically remove a region from the "regions" array field.
+const removeRes = await washingtonRef.update({
+regions: FieldValue.arrayRemove('east_coast')
+});
+
+// To add or remove multiple items, pass multiple arguments to arrayUnion/arrayRemove
+const multipleUnionRes = await washingtonRef.update({
+regions: FieldValue.arrayUnion('south_carolina', 'texas')
+// Alternatively, you can use spread operator in ES6 syntax
+// const newRegions = ['south_carolina', 'texas']
+// regions: FieldValue.arrayUnion(...newRegions)
+});
+
+Increment a numeric value
+
+You can increment or decrement a numeric field value as shown in the following example. An increment operation increases or decreases the current value of a field by the given amount.
+Note: If the field doesn't exist or if the current field value is not a numeric value, the operation sets the field to the given value.
+
+// ...
+const washingtonRef = db.collection('cities').doc('DC');
+
+// Atomically increment the population of the city by 50.
+const res = await washingtonRef.update({
+population: FieldValue.increment(50)
+});
+
+Increment operations are useful for implementing counters. Note that updating a single document too quickly can lead to contention or errors. If you need to update your counter at a very high rate, see the Distributed counters page.

@@ -1,0 +1,32 @@
+Order and limit data with Cloud Firestore
+
+Cloud Firestore provides powerful query functionality for specifying which documents you want to retrieve from a collection. These queries can also be used with either get() or addSnapshotListener(), as described in Get Data.
+Note: While the code samples cover multiple languages, the text explaining the samples refers to the Web method names.
+Order and limit data
+
+By default, a query retrieves all documents that satisfy the query in ascending order by document ID. You can specify the sort order for your data using orderBy(), and you can limit the number of documents retrieved using limit(). If you specify a limit(), the value must be greater than or equal to zero.
+Note: An orderBy() clause also filters for existence of the given field. The result set will not include documents that do not contain the given field.
+
+For example, you could query for the first 3 cities alphabetically with:
+
+const firstThreeRes = await citiesRef.orderBy('name').limit(3).get();
+
+You could also sort in descending order to get the last 3 cities:
+
+const lastThreeRes = await citiesRef.orderBy('name', 'desc').limit(3).get();
+
+You can also order by multiple fields. For example, if you wanted to order by state, and within each state order by population in descending order:
+
+const byStateByPopRes = await citiesRef.orderBy('state').orderBy('population', 'desc').get();
+
+You can combine where() filters with orderBy() and limit(). In the following example, the queries define a population threshold, sort by population in ascending order, and return only the first few results that exceed the threshold:
+
+const biggestRes = await citiesRef.where('population', '>', 2500000)
+.orderBy('population').limit(2).get();
+
+However, if you have a filter with a range comparison (<, <=, >, >=), your first ordering must be on the same field, see the list of orderBy() limitations below.
+Limitations
+
+Note the following restriction for orderBy() clauses:
+
+    An orderBy() clause also filters for existence of the given fields. The result set will not include documents that do not contain the given fields.

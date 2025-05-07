@@ -1,0 +1,57 @@
+Supported data types
+
+This page describes the data types that Cloud Firestore supports.
+Data types
+
+The following table lists the data types supported by Cloud Firestore. It also describes the sort order used when comparing values of the same type:
+Data type Sort order Notes
+Array By element values
+
+An array cannot contain another array value as one of its elements.
+
+Within an array, elements maintain the position assigned to them. When sorting two or more arrays, arrays are ordered based on their element values.
+
+When comparing two arrays, the first elements of each array are compared. If the first elements are equal, then the second elements are compared and so on until a difference is found. If an array runs out of elements to compare but is equal up to that point, then the shorter array is ordered before the longer array.
+
+For example, [1, 2, 3] < [1, 2, 3, 1] < [2]. The array [2] has the greatest first element value. The array [1, 2, 3] has elements equal to the first three elements of [1, 2, 3, 1] but is shorter in length.
+Boolean false < true —
+Bytes Byte order Up to 1,048,487 bytes (1 MiB - 89 bytes). Only the first 1,500 bytes are considered by queries.
+Date and time Chronological When stored in Cloud Firestore, precise only to microseconds; any additional precision is rounded down.
+Floating-point number Numeric 64-bit double precision, IEEE 754.
+Geographical point By latitude, then longitude At this time we do not recommend using this data type due to querying limitations. It is generally better to store latitude and longitude as separate numeric fields. If your app needs simple distance-based geoqueries, see Geo queries
+Integer Numeric 64-bit, signed
+Map By keys, then by value
+
+Represents an object embedded within a document. When indexed, you can query on subfields. If you exclude this value from indexing, then all subfields are also excluded from indexing.
+
+Key ordering is always sorted. For example, if you write {c: "foo", a: "bar", b: "qux"} the map is sorted by key and saved as {a: "bar", b: "qux", c: "foo"}.
+
+Map fields are sorted by key and compared by key-value pairs, first comparing the keys and then the values. If the first key-value pairs are equal, the next key-value pairs are compared, and so on. If two maps have all of the same key-value pairs, then map length is considered. For example, the following maps are in ascending order:
+
+{a: "aaa", b: "baz"}
+{a: "foo", b: "bar"}
+{a: "foo", b: "bar", c: "qux"}
+{a: "foo", b: "baz"}
+{b: "aaa", c: "baz"}
+{c: "aaa"}
+NaN None —
+Null None —
+Reference By path elements (collection, document ID, collection, document ID...) For example, projects/[PROJECT_ID]/databases/[DATABASE_ID]/documents/[DOCUMENT_PATH].
+Text string UTF-8 encoded byte order Up to 1,048,487 bytes (1 MiB - 89 bytes). Only the first 1,500 bytes of the UTF-8 representation are considered by queries.
+Vector By dimension and then by individual element values The max supported embedding dimension is 2048. To store vectors with larger dimensions, use dimensionality reduction.
+Value type ordering
+
+When a query involves a field with values of mixed types, Cloud Firestore uses a deterministic ordering based on the internal representations. The following list shows the order:
+
+    Null values
+    Boolean values
+    NaN values
+    Integer and floating-point values, sorted in numerical order
+    Date values
+    Text string values
+    Byte values
+    Cloud Firestore references
+    Geographical point values
+    Array values
+    Vector embeddings
+    Map values

@@ -1,0 +1,153 @@
+Get started with Cloud Firestore
+
+This quickstart shows you how to set up Cloud Firestore, add data, then view the data you just added in the Firebase console.
+Create a Cloud Firestore database
+
+    If you haven't already, create a Firebase project: In the Firebase console, click Add project, then follow the on-screen instructions to create a Firebase project or to add Firebase services to an existing Google Cloud project.
+
+    Open your project in the Firebase console. In the left panel, expand Build and then select Firestore database.
+
+    Click Create database.
+
+    Select a location for your database.
+
+    If you aren't able to select a location, then your project's "location for default Google Cloud resources" has already been set. Some of your project's resources (like the default Cloud Firestore instance) share a common location dependency, and their location can be set either during project creation or when setting up another service that shares this location dependency.
+
+    Select a starting mode for your Cloud Firestore Security Rules:
+
+    Test mode
+
+        Good for getting started with the mobile and web client libraries, but allows anyone to read and overwrite your data. After testing, make sure to review the Secure your data section.
+
+        To get started with the web, Apple platforms, or Android SDK, select test mode.
+    Locked mode
+
+        Denies all reads and writes from mobile and web clients. Your authenticated application servers (C#, Go, Java, Node.js, PHP, Python, or Ruby) can still access your database.
+
+        To get started with the C#, Go, Java, Node.js, PHP, Python, or Ruby server client library, select locked mode.
+
+    Your initial set of Cloud Firestore Security Rules will apply to your default Cloud Firestore database. If you create multiple databases for your project, you can deploy Cloud Firestore Security Rules for each database.
+
+    Click Create.
+
+Cloud Firestore and App Engine: You can't use both Cloud Firestore and Datastore in the same project, which might affect apps using App Engine. Try using Cloud Firestore with a different project.
+
+When you enable Cloud Firestore, it also enables the API in the Cloud API Manager.
+Set up your development environment
+
+Add the required dependencies and client libraries to your app.
+
+    Add the Firebase Admin SDK to your app:
+
+    npm install firebase-admin --save
+
+    Follow the instructions below to initialize Cloud Firestore with the proper credentials in your environment.
+
+(Optional) Prototype and test with Firebase Local Emulator Suite
+
+For mobile developers, before talking about how your app writes to and reads from Cloud Firestore, let's introduce a set of tools you can use to prototype and test Cloud Firestore functionality: Firebase Local Emulator Suite. If you're trying out different data models, optimizing your security rules, or working to find the most cost-effective way to interact with the back-end, being able to work locally without deploying live services can be a great idea.
+
+A Cloud Firestore emulator is part of the Local Emulator Suite, which enables your app to interact with your emulated database content and config, as well as optionally your emulated project resources (functions, other databases, and security rules).
+
+Using the Cloud Firestore emulator involves just a few steps:
+
+    Adding a line of code to your app's test config to connect to the emulator.
+    From the root of your local project directory, running firebase emulators:start.
+    Making calls from your app's prototype code using a Cloud Firestore platform SDK as usual.
+
+A detailed walkthrough involving Cloud Firestore and Cloud Functions is available. You should also have a look at the Local Emulator Suite introduction.
+Initialize Cloud Firestore
+
+Initialize an instance of Cloud Firestore:
+
+The Cloud Firestore SDK is initialized in different ways depending on your environment. Below are the most common methods. For a complete reference, see Initialize the Admin SDK.
+
+    Initialize on Cloud Functions
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp();
+
+const db = getFirestore();
+
+Initialize on Google Cloud
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp({
+  credential: applicationDefault()
+});
+
+const db = getFirestore();
+
+Initialize on your own server
+
+To use the Firebase Admin SDK on your own server (or any other Node.js environment), use a service account. Go to IAM & admin > Service accounts in the Google Cloud console. Generate a new private key and save the JSON file. Then use the file to initialize the SDK:
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+const serviceAccount = require('./path/to/serviceAccountKey.json');
+
+initializeApp({
+  credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
+
+Add data
+
+Cloud Firestore stores data in Documents, which are stored in Collections. Cloud Firestore creates collections and documents implicitly the first time you add data to the document. You do not need to explicitly create collections or documents.
+
+Create a new collection and a document using the following example code.
+
+const docRef = db.collection('users').doc('alovelace');
+
+await docRef.set({
+  first: 'Ada',
+  last: 'Lovelace',
+  born: 1815
+});
+
+Now add another document to the users collection. Notice that this document includes a key-value pair (middle name) that does not appear in the first document. Documents in a collection can contain different sets of information.
+
+const aTuringRef = db.collection('users').doc('aturing');
+
+await aTuringRef.set({
+  'first': 'Alan',
+  'middle': 'Mathison',
+  'last': 'Turing',
+  'born': 1912
+});
+
+Read data
+
+Use the data viewer in the Firebase console to quickly verify that you've added data to Cloud Firestore.
+
+You can also use the "get" method to retrieve the entire collection.
+
+const snapshot = await db.collection('users').get();
+snapshot.forEach((doc) => {
+  console.log(doc.id, '=>', doc.data());
+});
+
+Secure your data
+
+If you're using the web, Android, or Apple platforms SDK, use Firebase Authentication and Cloud Firestore Security Rules to secure your data in Cloud Firestore.
+
+Here are some basic rule sets you can use to get started. You can modify your security rules in the Rules tab of the console.
+Auth required
+Locked mode
+
+// Allow read/write access to a document keyed by the user's UID
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}
+
+Before you deploy your web, Android, or iOS app to production, also take steps to ensure that only your app clients can access your Cloud Firestore data. See the App Check documentation.

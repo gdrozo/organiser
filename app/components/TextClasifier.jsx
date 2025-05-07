@@ -19,6 +19,8 @@ const API = '/api/ai/classify'
 export default function TextInput() {
   let categories
 
+  const formRef = useRef()
+
   const { messages, input, handleInputChange, handleSubmit, status } = useChat({
     api: '/api/ai/classify', // Points to the updated server-side chat handler
   })
@@ -110,6 +112,20 @@ export default function TextInput() {
     setSubmitted(false)
   }
 
+  function handlePointerDown(event) {
+    if (!formRef.current) return
+
+    formRef.current.classList.remove('text-animation')
+  }
+
+  function handleBlur(event) {
+    if (!formRef.current) return
+
+    if (event.target.value !== '') return
+
+    formRef.current.classList.add('text-animation')
+  }
+
   return (
     <div className='grow flex'>
       {/* Show loading spinner or disable input */}
@@ -119,6 +135,7 @@ export default function TextInput() {
         {/* User input form */}
         <form
           onSubmit={interceptSubmit}
+          ref={formRef}
           className='flex flex-col gap-4 grow | text-animation'
         >
           <ACTextArea
@@ -127,6 +144,8 @@ export default function TextInput() {
             name='prompt' // Required for useChat
             value={input}
             onChange={interceptInputChange}
+            onPointerDown={handlePointerDown}
+            onBlur={handleBlur}
             disabled={status !== 'ready'}
             id='prompt'
           />
@@ -140,6 +159,7 @@ export default function TextInput() {
           </Button>
           {/* Text Animation */}
         </form>
+
         {submitted && (
           <div className='fixed top-0 left-0 right-0 bottom-0 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center p-30 gap-2'>
             {status !== 'ready' && (

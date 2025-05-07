@@ -1,0 +1,153 @@
+Get data with Cloud Firestore
+
+There are three ways to retrieve data stored in Cloud Firestore. Any of these methods can be used with documents, collections of documents, or the results of queries:
+
+    Call a method to get the data once.
+    Set a listener to receive data-change events.
+    Bulk-load Firestore snapshot data from an external source via data bundles. See the bundles doc for more details.
+
+When you set a listener, Cloud Firestore sends your listener an initial snapshot of the data, and then another snapshot each time the document changes.
+Note: While the code samples cover multiple languages, the text explaining the samples refers to the Web method names.
+Before you begin
+See Get started with Cloud Firestore to create a Cloud Firestore database.
+Initialize Cloud Firestore
+
+Initialize an instance of Cloud Firestore:
+
+The Cloud Firestore SDK is initialized in different ways depending on your environment. Below are the most common methods. For a complete reference, see Initialize the Admin SDK.
+
+    Initialize on Cloud Functions
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp();
+
+const db = getFirestore();
+
+Initialize on Google Cloud
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+initializeApp({
+credential: applicationDefault()
+});
+
+const db = getFirestore();
+
+Initialize on your own server
+
+To use the Firebase Admin SDK on your own server (or any other Node.js environment), use a service account. Go to IAM & admin > Service accounts in the Google Cloud console. Generate a new private key and save the JSON file. Then use the file to initialize the SDK:
+
+const { initializeApp, applicationDefault, cert } = require('firebase-admin/app');
+const { getFirestore, Timestamp, FieldValue, Filter } = require('firebase-admin/firestore');
+
+const serviceAccount = require('./path/to/serviceAccountKey.json');
+
+initializeApp({
+credential: cert(serviceAccount)
+});
+
+const db = getFirestore();
+
+Example data
+
+To get started, write some data about cities so we can look at different ways to read it back:
+
+const citiesRef = db.collection('cities');
+
+await citiesRef.doc('SF').set({
+name: 'San Francisco', state: 'CA', country: 'USA',
+capital: false, population: 860000
+});
+await citiesRef.doc('LA').set({
+name: 'Los Angeles', state: 'CA', country: 'USA',
+capital: false, population: 3900000
+});
+await citiesRef.doc('DC').set({
+name: 'Washington, D.C.', state: null, country: 'USA',
+capital: true, population: 680000
+});
+await citiesRef.doc('TOK').set({
+name: 'Tokyo', state: null, country: 'Japan',
+capital: true, population: 9000000
+});
+await citiesRef.doc('BJ').set({
+name: 'Beijing', state: null, country: 'China',
+capital: true, population: 21500000
+});
+
+Get a document
+
+The following example shows how to retrieve the contents of a single document using get():
+
+const cityRef = db.collection('cities').doc('SF');
+const doc = await cityRef.get();
+if (!doc.exists) {
+console.log('No such document!');
+} else {
+console.log('Document data:', doc.data());
+}
+
+Note: If there is no document at the location referenced by docRef, the resulting document will be empty and calling exists on it will return false.
+Source Options
+
+For platforms with offline support, you can set the source option to control how a get call uses the offline cache.
+
+By default, a get call will attempt to fetch the latest document snapshot from your database. On platforms with offline support, the client library will use the offline cache if the network is unavailable or if the request times out.
+
+You can specify the source option in a get() call to change the default behavior. You can fetch from only the database and ignore the offline cache, or you can fetch from only the offline cache. For example:
+
+Not supported in the Node.js SDK.
+Custom objects
+
+The previous example retrieved the contents of the document as a map, but in some languages it's often more convenient to use a custom object type. In Add Data, you defined a City class that you used to define each city. You can turn your document back into a City object:
+
+Node.js uses JavaScript objects.
+Get multiple documents from a collection
+
+You can also retrieve multiple documents with one request by querying documents in a collection. For example, you can use where() to query for all of the documents that meet a certain condition, then use get() to retrieve the results:
+
+const citiesRef = db.collection('cities');
+const snapshot = await citiesRef.where('capital', '==', true).get();
+if (snapshot.empty) {
+console.log('No matching documents.');
+return;
+}
+
+snapshot.forEach(doc => {
+console.log(doc.id, '=>', doc.data());
+});
+
+By default, Cloud Firestore retrieves all documents that satisfy the query in ascending order by document ID, but you can order and limit the data returned.
+Get all documents in a collection
+
+In addition, you can retrieve all documents in a collection by omitting the where() filter entirely:
+
+const citiesRef = db.collection('cities');
+const snapshot = await citiesRef.get();
+snapshot.forEach(doc => {
+console.log(doc.id, '=>', doc.data());
+});
+
+Get all documents in a subcollection
+
+To retrieve all the documents from a subcollection, create a reference with the complete path to that subcollection:
+
+// Snippet not available
+
+Get multiple documents from a collection group
+
+A collection group consists of all collections with the same ID. For example, if each document in your cities collection has a subcollection called landmarks, all of the landmarks subcollections belong to the same collection group. By default, queries retrieve results from a single collection in your database. Use a collection group query to retrieve results from a collection group instead of from a single collection.
+List subcollections of a document
+
+The listCollections() method of the Cloud Firestore server client libraries lists all subcollections of a document reference.
+
+Retrieving a list of collections is not possible with the mobile/web client libraries. You should only look up collection names as part of administrative tasks in trusted server environments. If you find that you need this capability in the mobile/web client libraries, consider restructuring your data so that subcollection names are predictable.
+
+const sfRef = db.collection('cities').doc('SF');
+const collections = await sfRef.listCollections();
+collections.forEach(collection => {
+console.log('Found subcollection with id:', collection.id);
+});

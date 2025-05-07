@@ -1,0 +1,376 @@
+Perform simple and compound queries in Cloud Firestore
+
+Cloud Firestore provides powerful query functionality for specifying which documents you want to retrieve from a collection or collection group. These queries can also be used with either get() or addSnapshotListener(), as described in Get Data and Get Realtime Updates.
+Note: While the code samples cover multiple languages, the text explaining the samples refers to the Web method names.
+Example data
+
+To get started, write some data about cities so we can look at different ways to read it back:
+
+const citiesRef = db.collection('cities');
+
+await citiesRef.doc('SF').set({
+name: 'San Francisco', state: 'CA', country: 'USA',
+capital: false, population: 860000,
+regions: ['west_coast', 'norcal']
+});
+await citiesRef.doc('LA').set({
+name: 'Los Angeles', state: 'CA', country: 'USA',
+capital: false, population: 3900000,
+regions: ['west_coast', 'socal']
+});
+await citiesRef.doc('DC').set({
+name: 'Washington, D.C.', state: null, country: 'USA',
+capital: true, population: 680000,
+regions: ['east_coast']
+});
+await citiesRef.doc('TOK').set({
+name: 'Tokyo', state: null, country: 'Japan',
+capital: true, population: 9000000,
+regions: ['kanto', 'honshu']
+});
+await citiesRef.doc('BJ').set({
+name: 'Beijing', state: null, country: 'China',
+capital: true, population: 21500000,
+regions: ['jingjinji', 'hebei']
+});
+
+Simple queries
+
+The following query returns all cities with state CA:
+
+// Create a reference to the cities collection
+const citiesRef = db.collection('cities');
+
+// Create a query against the collection
+const queryRef = citiesRef.where('state', '==', 'CA');
+
+The following query returns all the capital cities:
+
+// Create a reference to the cities collection
+const citiesRef = db.collection('cities');
+
+// Create a query against the collection
+const allCapitalsRes = citiesRef.where('capital', '==', true);
+
+Execute a query
+
+After creating a query object, use the get() function to retrieve the results:
+
+const citiesRef = db.collection('cities');
+const snapshot = await citiesRef.where('capital', '==', true).get();
+if (snapshot.empty) {
+console.log('No matching documents.');
+return;
+}
+
+snapshot.forEach(doc => {
+console.log(doc.id, '=>', doc.data());
+});
+
+See Get Data for more information on retrieving query results. You can also add a listener to a query to get the current results and listen for future updates.
+
+Query operators
+
+The where() method takes three parameters: a field to filter on, a comparison operator, and a value. Cloud Firestore supports the following comparison operators:
+
+    < less than
+    <= less than or equal to
+    == equal to
+    > greater than
+    >= greater than or equal to
+    != not equal to
+    array-contains
+    array-contains-any
+    in
+    not-in
+
+Note: For Apple, Android, and Java, the comparison operator is explicitly named in the method.
+
+For example:
+
+const stateQueryRes = await citiesRef.where('state', '==', 'CA').get();
+const populationQueryRes = await citiesRef.where('population', '<', 1000000).get();
+const nameQueryRes = await citiesRef.where('name', '>=', 'San Francisco').get();
+
+Not equal (!=)
+
+Use the not equal (!=) operator to return documents where the given field exists and does not match the comparison value. For example:
+
+const capitalNotFalseRes = await citiesRef.where('capital', '!=', false).get();
+
+This query returns every city document where the capital field exists with a value other than false or null. This includes city documents where the capital field value equals true or any non-boolean value besides null.
+
+This query does not return city documents where the capital field does not exist. Not-equal (!=) and not-in queries exclude documents where the given field does not exist.
+
+A field exists when it's set to any value, including an empty string (""), null, and NaN (not a number). Note that null field values do not match != clauses, because x != null evaluates to undefined.
+Warning: A != query clause might match many documents in a collection. To control the number of results returned, use a limit clause or paginate your query.
+Limitations
+
+Note the following limitations for != queries:
+
+    Only documents where the given field exists can match the query.
+    You can't combine not-in and != in a compound query.
+
+Array membership
+
+You can use the array-contains operator to filter based on array values. For example:
+
+const westCoastCities = citiesRef.where('regions', 'array-contains',
+'west_coast').get();
+
+This query returns every city document where the regions field is an array that contains west_coast. If the array has multiple instances of the value you query on, the document is included in the results only once.
+
+You can use at most one array-contains clause per disjunction (or group). You can't combine array-contains with array-contains-any in the same disjunction.
+
+in, not-in, and array-contains-any
+
+Use the in operator to combine up to 30 equality (==) clauses on the same field with a logical OR. An in query returns documents where the given field matches any of the comparison values. For example:
+
+const usaOrJapan = await citiesRef.where('country', 'in', ['USA', 'Japan']).get();
+
+This query returns every city document where the country field is set to USA or Japan. From the example data, this includes the SF, LA, DC, and TOK documents.
+not-in
+
+Use the not-in operator to combine up to 10 not equal (!=) clauses on the same field with a logical AND. A not-in query returns documents where the given field exists, is not null, and does not match any of the comparison values. For example:
+
+const notUsaOrJapan = await citiesRef.where('country', 'not-in', ['USA', 'Japan']).get();
+
+This query returns every city document where the country field exists and is not set to USA, Japan, or null. From the example data, this includes the London and Hong Kong documents.
+
+not-in queries exclude documents where the given field does not exist. A field exists when it's set to any value, including an empty string (""), null, and NaN (not a number). Note that x != null evaluates to undefined. A not-in query with null as one of the comparison values does not match any documents.
+Warning: A not-in query clause might match many documents in a collection. To control the number of results returned, use a limit clause or paginate your query.
+array-contains-any
+
+Use the array-contains-any operator to combine up to 30 array-contains clauses on the same field with a logical OR. An array-contains-any query returns documents where the given field is an array that contains one or more of the comparison values:
+
+const coastalCities = await citiesRef.where('regions', 'array-contains-any',
+['west_coast', 'east_coast']).get();
+
+This query returns every city document where the regions field is an array that contains west_coast or east_coast. From the example data, this includes the SF, LA, and DC documents.
+
+Results from array-contains-any are de-duped. Even if a document's array field matches more than one of the comparison values, the result set includes that document only once.
+
+array-contains-any always filters by the array data type. For example, the query above would not return a city document where instead of an array, the regions field is the string west_coast.
+
+You can use an array value as a comparison value for in, but unlike array-contains-any, the clause matches for an exact match of array length, order, and values. For example:
+
+const exactlyOneCoast = await citiesRef.where('regions', 'in',
+[['west_coast', 'east_coast']]).get();
+
+This query returns every city document where the regions field is an array that contains exactly one element of either west_coast or east_coast. From the example data, only the DC document qualifies with its regions field of ["east_coast"]. The SF document, however, does not match because its regions field is ["west_coast", "norcal"].
+
+Limitations
+
+Note the following limitations for in, not-in, and array-contains-any:
+
+    Cloud Firestore provides support for logical OR queries through the or, in, and array-contains-any operators. These queries are limited to 30 disjunctions based on the query's disjunctive normal form.
+    You can use at most one array-contains clause per disjunction (or group). You can't combine array-contains with array-contains-any in the same disjunction.
+    You can't combine not-in with not equals !=.
+    not-in supports up to 10 comparison values.
+
+Compound (AND) queries
+
+You can combine constraints with a logical AND by chaining multiple equality operators (== or array-contains). However, you must create a composite index to combine equality operators with the inequality operators, <, <=, >, and !=.
+
+citiesRef.where('state', '==', 'CO').where('name', '==', 'Denver');
+citiesRef.where('state', '==', 'CA').where('population', '<', 1000000);
+
+OR queries
+
+You can combine constraints with a logical OR. For example:
+
+const bigCities = await citiesRef
+.where(
+Filter.or(
+Filter.where('capital', '==', true),
+Filter.where('population', '>=', 1000000)
+)
+)
+.get();
+
+Cloud Firestore uses your composite indexes to serve OR queries. If your indexes do not support the query, Cloud Firestore suggests additional indexes for your database.
+
+You can combine OR queries with compound queries to filter on combinations of OR and AND operations. For example:
+
+const bigCitiesInCalifornia = await citiesRef
+.where('state', '==', 'CA')
+.where(
+Filter.or(
+Filter.where('capital', '==', true),
+Filter.where('population', '>=', 1000000)
+)
+)
+.get();
+
+Limitations
+
+Note the following limitations for or queries:
+
+    Cloud Firestore limits a query to a maximum of 30 disjunctions based on the query's disjunctive normal form. You are more likely to reach this limit when performing an AND of multiple OR groups.
+    You can't combine not-in with in, array-contains-any, or or in the same query.
+
+For a full description of limitations, see Query limitations.
+Collection group queries
+
+A collection group consists of all collections with the same ID. By default, queries retrieve results from a single collection in your database. Use a collection group query to retrieve documents from a collection group instead of from a single collection.
+
+For example, you can create a landmarks collection group by adding a landmarks subcollection to each city:
+
+const citiesRef = db.collection('cities');
+
+await citiesRef.doc('SF').collection('landmarks').doc().set({
+name: 'Golden Gate Bridge',
+type: 'bridge'
+});
+await citiesRef.doc('SF').collection('landmarks').doc().set({
+name: 'Legion of Honor',
+type: 'museum'
+});
+await citiesRef.doc('LA').collection('landmarks').doc().set({
+name: 'Griffith Park',
+type: 'park'
+});
+await citiesRef.doc('LA').collection('landmarks').doc().set({
+name: 'The Getty',
+type: 'museum'
+});
+await citiesRef.doc('DC').collection('landmarks').doc().set({
+name: 'Lincoln Memorial',
+type: 'memorial'
+});
+await citiesRef.doc('DC').collection('landmarks').doc().set({
+name: 'National Air and Space Museum',
+type: 'museum'
+});
+await citiesRef.doc('TOK').collection('landmarks').doc().set({
+name: 'Ueno Park',
+type: 'park'
+});
+await citiesRef.doc('TOK').collection('landmarks').doc().set({
+name: 'National Museum of Nature and Science',
+type: 'museum'
+});
+await citiesRef.doc('BJ').collection('landmarks').doc().set({
+name: 'Jingshan Park',
+type: 'park'
+});
+await citiesRef.doc('BJ').collection('landmarks').doc().set({
+name: 'Beijing Ancient Observatory',
+type: 'museum'
+});
+
+We can use the simple and compound query described earlier to query a single city's landmarks subcollection, but you might also want to retrieve results from every city's landmarks subcollection at once.
+
+The landmarks collection group consists of all collections with the ID landmarks, and you can query it using a collection group query. For example, this collection group query retrieves all museum landmarks across all cities:
+
+const querySnapshot = await db.collectionGroup('landmarks').where('type', '==', 'museum').get();
+querySnapshot.forEach((doc) => {
+console.log(doc.id, ' => ', doc.data());
+});
+
+Before using a collection group query, you must create an index that supports your collection group query. You can create an index through an error message, the console, or the Firebase CLI.
+
+For the web and mobile SDKs, you must also create rules that allow your collection group queries.
+Explain your query performance
+
+Cloud Firestore allows you to measure performance of your queries on the backend and receive detailed performance statistics on backend query execution in return.
+
+Query Explain results help you understand how your queries are executed, showing you inefficiencies and the location of likely server-side bottlenecks.
+
+For more information, see the guide for Query Explain.
+Query limitations
+
+The following list summarizes Cloud Firestore query limitations:
+
+    Cloud Firestore provides support for logical OR queries through the or, in, and array-contains-any operators. These queries are limited to 30 disjunctions based on the query's disjunctive normal form.
+    You can use at most one array-contains clause per disjunction (or group). You can't combine array-contains with array-contains-any in the same disjunction.
+    You can't combine not-in with in, array-contains-any, or or in the same query.
+    Only a single not-in or != is allowed per query.
+    not-in supports up to 10 comparison values.
+    The sum of filters, sort orders, and parent document path (1 for a subcollection, 0 for a root collection) in a query cannot exceed 100. This is calculated based on the disjunctive normal form of the query.
+    A query with an inequality filter on a field implies ordering by that field and filters for existence of that field.
+
+Limits on OR queries
+
+To prevent a query from becoming too computationally expensive, Cloud Firestore limits how many AND and OR clauses you can combine. To apply this limit, Cloud Firestore converts queries that perform logical OR operations (or, in, and array-contains-any) to disjunctive normal form (also known as an OR of ANDs). Cloud Firestore limits a query to a maximum of 30 disjunctions in disjunctive normal form.
+Disjunctive normal form
+
+Cloud Firestore converts queries to disjunctive normal form by applying two rules:
+
+    Flatten
+
+    Given conditions A, B, and C:
+
+    A and (B and C) => A and B and C
+
+    Distributive Law
+
+    Given conditions A, B, C, and D:
+        A and (B or C) => (A and B) or (A and C)
+        (A or B) and (C or D) => (A and C) or (A and D) or (B and C) or (B and D)
+
+When applying these rules to in and array-contains-any queries, remember that these operators are shorthands for OR. For example, a in [1,2] is shorthand for a = 1 OR a = 2.
+Warning: Due to the multiplicative nature of conversions to disjunctive normal form, you are more likely to reach the limit when performing an AND of multiple OR groups.
+
+The following examples show the number of disjunctions for different queries:
+Query Number of disjunctions
+
+query(collectionRef, where("a", "==", 1))
+
+    1
+
+query(collectionRef, or( where("a", "==", 1), where("b", "==", 2) ))
+
+    2
+
+query(collectionRef,
+or( and( where("a", "==", 1), where("c", "==", 3) ),
+and( where("a", "==", 1), where("d", "==", 4) ),
+and( where("b", "==", 2), where("c", "==", 3) ),
+and( where("b", "==", 2), where("d", "==", 4) )
+)
+)
+
+    4
+
+query(collectionRef,
+and( or( where("a", "==", 1), where("b", "==", 2) ),
+or( where("c", "==", 3), where("d", "==", 4) )
+)
+)
+
+4
+
+The disjunctive normal form of this query is equal to the query above.
+
+query(collectionRef, where("a", "in", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]) )
+
+    10
+
+query(collectionRef,
+and( where("a", "in", [1, 2, 3, 4, 5]),
+where("b", "in", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+)
+)
+
+50
+
+This query returns an error, because it surpasses the limit of 30 disjunctions.
+
+query(collectionRef,
+or( where("a", "in", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+where("b", "in", [1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+)
+)
+
+    20
+
+query(collectionRef,
+and( where("a", "in", [1, 2, 3, 4, 5]),
+or( where("b", "==", 2),
+where("c", "==", 3)
+)
+)
+)
+
+    10

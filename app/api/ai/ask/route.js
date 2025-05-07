@@ -4,6 +4,7 @@ import { GetCategories, getText } from '@/logic/Categories'
 import { generateText } from 'ai'
 import { checkAuth } from '@/utils/auth'
 import { streamTextTunnel } from '@/utils/streamHelper'
+import { createChat, updateChat } from '@/logic/Chats'
 
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY, // Securely stored API key
@@ -16,8 +17,9 @@ FILE LIST:`
 
 export async function POST(req) {
   try {
+    const userId = await checkAuth()
     // If the user is not signed in, return a 401 Unauthorized response
-    if (!checkAuth()) {
+    if (!userId) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized access: Please sign in.' }),
         {
@@ -28,7 +30,7 @@ export async function POST(req) {
     }
 
     // Parse the request body
-    const { messages } = await req.json()
+    const { messages, id } = await req.json()
 
     let preparedMessages = [...messages]
     const lastIndex = preparedMessages.length - 1
@@ -53,7 +55,6 @@ export async function POST(req) {
 
       tunnel.sendMessage('status:selecting files')
 
-      console.log('asking ai:', systemPrompt, '---', preparedMessages)
       const response = await generateText({
         model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
         system: systemPrompt, // Define system behavior
@@ -71,18 +72,8 @@ export async function POST(req) {
         contents += text
       }
 
-      /*
-      const lastUserMessage =
-        messages.length - 2 < 0 ? messages[0] : messages[messages.length - 2]
-*/
       tunnel.sendMessage('status:asking AI')
 
-      console.log(
-        'asking ai:',
-        'ANSWER THE QUESTION COMPLETELY BASED ON THIS TEXT: ' + contents,
-        '---',
-        messages
-      )
       const result = await generateText({
         model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
         system:
@@ -92,6 +83,20 @@ export async function POST(req) {
 
       tunnel.sendMessage('response:' + result.text)
 
+      const fullMessages = [
+        ...messages,
+        {
+          content: result.text,
+          role: 'assistant',
+          id: `${messages.length + 1}`,
+        },
+      ]
+
+      if (!id)
+        await createChat(userId, {
+          messages: fullMessages,
+        })
+      else await updateChat(userId, id, { messages: fullMessages })
       tunnel.close()
     })()
 

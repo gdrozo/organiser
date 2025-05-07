@@ -2,7 +2,13 @@
 import { Textarea } from '@/components/ui/textarea'
 import { useEffect, useRef, useState } from 'react'
 
-export default function ACTextArea({ className = '', ...props }) {
+export default function ACTextArea({
+  className = '',
+  onFocus = () => {},
+  onBlur = () => {},
+  onPointerDown = () => {},
+  ...props
+}) {
   const inputRef = useRef(null)
   const [ogHeight, setOgHeight] = useState(0)
 
@@ -12,8 +18,13 @@ export default function ACTextArea({ className = '', ...props }) {
     }, 50)
   }, [])
 
-  const onFocusIn = () => {
+  useEffect(() => {
+    if (!inputRef.current) return
+  }, [inputRef])
+
+  const focusHandler = e => {
     loopResize(0)
+    onFocus(e)
   }
 
   function loopResize(i) {
@@ -34,20 +45,27 @@ export default function ACTextArea({ className = '', ...props }) {
     //alert(`resized og:${ogHeight} new:${height}`)
   }
 
-  const onFocusOut = () => {
+  const blurHandler = e => {
     const container = document.getElementById('container')
     container.style.height = `${ogHeight}px`
     container.style.minHeight = `${ogHeight}px`
     container.style.maxHeight = `${ogHeight}px`
+
+    onBlur(e)
+  }
+
+  function pointerDownHandler(e) {
+    loopResize(0)
+    onPointerDown(e)
   }
 
   return (
     <Textarea
       className={` ${className}`}
       ref={inputRef}
-      onFocus={onFocusIn}
-      onBlur={onFocusOut}
-      onPointerDown={onFocusIn}
+      onFocus={focusHandler}
+      onBlur={blurHandler}
+      onPointerDown={pointerDownHandler}
       {...props}
     />
   )

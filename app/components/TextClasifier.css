@@ -298,6 +298,6 @@
   border-right: 1px solid black; /* The blinking cursor */
   /*
   */
-  animation: typing 8s infinite, blink-caret 0.75s step-end infinite;
+  animation: typing 4s infinite, blink-caret 0.75s step-end infinite;
   content: 'Here you can type or paste the text you want to classify. :)';
 }

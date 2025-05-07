@@ -3,16 +3,27 @@
 import { Button } from '@/components/ui/button'
 import './Ask.css'
 import AutoCenterInput from './AutoCenterInput'
-import { useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { fetchStream } from '@/utils/apiClient'
+import { onChatClick } from './ChatList'
 
 const API = '/api/ai/ask'
 
-export default function Ask() {
+export default function Ask({ def_messages }) {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [status, setStatus] = useState('waiting for server')
   const [response, setResponse] = useState()
+  const [chatId, setChatId] = useState()
+
+  useEffect(() => {
+    onChatClick(chat => {
+      setMessages(chat.messages)
+      setChatId(chat.id)
+      setInput('')
+      setStatus()
+    })
+  }, [])
 
   useEffect(() => {
     if (!response) return
@@ -24,8 +35,6 @@ export default function Ask() {
   }
 
   async function processIncomingMessage(message) {
-    console.log('message:', message)
-
     const STATUS = 'status:'
     const RESPONSE = 'response:'
 
@@ -41,7 +50,6 @@ export default function Ask() {
         role: 'assistant',
         content: response,
       })
-      console.log('response:', response)
       setStatus()
     }
   }
@@ -55,9 +63,16 @@ export default function Ask() {
     })
 
     setMessages(updatedMessages)
+
+    const body = {
+      messages: updatedMessages,
+    }
+
+    if (chatId) body.id = chatId
+
     fetchStream(
       API,
-      { messages: updatedMessages },
+      body,
       update => processIncomingMessage(update),
       finalData => processIncomingMessage(finalData),
       () => setStatus('error')

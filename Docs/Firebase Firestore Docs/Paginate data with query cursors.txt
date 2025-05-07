@@ -1,0 +1,92 @@
+Paginate data with query cursors
+
+With query cursors in Cloud Firestore, you can split data returned by a query into batches according to the parameters you define in your query.
+
+Query cursors define the start and end points for a query, allowing you to:
+
+    Return a subset of the data.
+    Paginate query results.
+
+However, to define a specific range for a query, you should use the where() method described in Simple Queries.
+Add a simple cursor to a query
+
+Use the startAt() or startAfter() methods to define the start point for a query. The startAt() method includes the start point, while the startAfter() method excludes it.
+
+For example, if you use startAt(A) in a query, it returns the entire alphabet. If you use startAfter(A) instead, it returns B-Z.
+
+const startAtRes = await db.collection('cities')
+  .orderBy('population')
+  .startAt(1000000)
+  .get();
+
+Similarly, use the endAt() or endBefore() methods to define an end point for your query results.
+
+const endAtRes = await db.collection('cities')
+  .orderBy('population')
+  .endAt(1000000)
+  .get();
+
+Use a document snapshot to define the query cursor
+
+You can also pass a document snapshot to the cursor clause as the start or end point of the query cursor. The values in the document snapshot serve as the values in the query cursor.
+
+For example, take a snapshot of a "San Francisco" document in your data set of cities and populations. Then, use that document snapshot as the start point for your population query cursor. Your query will return all the cities with a population larger than or equal to San Francisco's, as defined in the document snapshot.
+
+const docRef = db.collection('cities').doc('SF');
+const snapshot = await docRef.get();
+const startAtSnapshot = db.collection('cities')
+  .orderBy('population')
+  .startAt(snapshot);
+
+await startAtSnapshot.limit(10).get();
+
+Paginate a query
+
+Paginate queries by combining query cursors with the limit() method. For example, use the last document in a batch as the start of a cursor for the next batch.
+
+const first = db.collection('cities')
+  .orderBy('population')
+  .limit(3);
+
+const snapshot = await first.get();
+
+// Get the last document
+const last = snapshot.docs[snapshot.docs.length - 1];
+
+// Construct a new query starting at this document.
+// Note: this will not have the desired effect if multiple
+// cities have the exact same population value.
+const next = db.collection('cities')
+  .orderBy('population')
+  .startAfter(last.data().population)
+  .limit(3);
+
+// Use the query for pagination
+// ...
+
+Set cursor based on multiple fields
+
+When using a cursor based on a field value (not a DocumentSnapshot), you can make the cursor position more precise by adding additional fields. This is particularly useful if your data set includes multiple documents that all have the same value for your cursor field, making the cursor's position ambiguous. You can add additional field values to your cursor to further specify the start or end point and reduce ambiguity.
+
+For example, in a data set containing all the cities named "Springfield" in the United States, there would be multiple start points for a query set to start at "Springfield":
+Cities
+Name 	State
+Springfield 	Massachusetts
+Springfield 	Missouri
+Springfield 	Wisconsin
+
+To start at a specific Springfield, you could add the state as a secondary condition in your cursor clause.
+
+// Will return all Springfields
+const startAtNameRes = await db.collection('cities')
+  .orderBy('name')
+  .orderBy('state')
+  .startAt('Springfield')
+  .get();
+
+// Will return 'Springfield, Missouri' and 'Springfield, Wisconsin'
+const startAtNameAndStateRes = await db.collection('cities')
+  .orderBy('name')
+  .orderBy('state')
+  .startAt('Springfield', 'Missouri')
+  .get();

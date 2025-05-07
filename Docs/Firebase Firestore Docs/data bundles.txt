@@ -1,0 +1,57 @@
+loud Firestore data bundles
+
+Note: Data bundles is an optional, advanced Cloud Firestore feature. We cover data bundles here along with basic concepts for understanding Cloud Firestore so you're aware of features that can help you manage query costs once your app has scaled up. Before you consider data bundles, in addition to reading the other overview and concept topics, be sure to read the guide for performing Cloud Firestore queries.
+
+Cloud Firestore data bundles are static data files built by you from Cloud Firestore document and query snapshots, and published by you on a CDN, hosting service or other solution. Data bundles include both the documents you want to provide to your client apps and metadata about the queries that generated them. You use client SDKs to download bundles over the network or from local storage, after which you load bundle data to the Cloud Firestore local cache. Once a bundle is loaded, a client app can query documents from the local cache or the backend.
+
+With data bundles, your apps can load the results of common queries sooner, since documents are available at start-up without the need for calls to the Cloud Firestore backend. If results are loaded from local cache, you also benefit from reduced access costs. Instead of paying for a million app instances to query the same initial 100 documents, you pay only for the queries needed to bundle those 100 documents.
+
+Cloud Firestore data bundles are built to work well with other Firebase backend products. Take a look at an integrated solution in which bundles are built by Cloud Functions and served to users with Firebase Hosting.
+
+Using a bundle with your app involves three steps:
+
+    Building the bundle with the Admin SDK
+    Serving the bundle from local storage or from a CDN
+    Loading bundles in the client
+
+What is a data bundle?
+
+A data bundle is a static binary file built by you to package one or more document and/or query snapshots and from which you can extract named queries. As we discuss below, the server-side SDKs let you build bundles and client SDKs provide methods to let you load bundles to the local cache.
+
+Named queries are an especially powerful feature of bundles. Named queries are Query objects you can extract from a bundle, then use immediately to query data either from cache or from the backend, as you do normally in any part of your app that talks to Cloud Firestore.
+Building data bundles on the server
+
+Using the Node.js or Java Admin SDK gives you complete control over what to include in the bundles and how to serve them.
+Note: Make sure to bundle only publicly readable data. The Admin SDK acts as a privileged user and does not evaluate Security Rules; therefore, it will bundle any documents or queried data regardless of your security rules.
+Node.js
+Java
+Python
+
+var bundleId = "latest-stories";
+
+var bundle = firestore.bundle(bundleId);
+
+var docSnapshot = await firestore.doc('stories/stories').get();
+var querySnapshot = await firestore.collection('stories').get();
+
+// Build the bundle
+// Note how querySnapshot is named "latest-stories-query"
+var bundleBuffer = bundle.add(docSnapshot); // Add a document
+.add('latest-stories-query', querySnapshot) // Add a named query.
+.build()
+
+Serving data bundles
+
+You can serve bundles to your client apps from a CDN or by downloading them from, for example, Cloud Storage.
+
+Assume the bundle created in the previous section has been saved to a file named bundle.txtand posted on a server. This bundle file is like any other asset you can serve over the web, as shown here for a simple Node.js Express app.
+
+const fs = require('fs');
+const server = require('http').createServer();
+
+server.on('request', (req, res) => {
+const src = fs.createReadStream('./bundle.txt');
+src.pipe(res);
+});
+
+server.listen(8000);
