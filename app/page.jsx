@@ -14,6 +14,7 @@ import Categories from './components/Categories'
 import Image from 'next/image'
 import BurgerOpener from './components/BurgerOpener'
 import SideBar from './components/SideBar'
+import ChatList from './components/ChatList'
 
 export default async function Home() {
   const start = performance.now()
@@ -29,6 +30,7 @@ export default async function Home() {
   console.log('------------------------------------------------')
 
   const categoriesEl = <Categories />
+  const chatsEl = <ChatList />
 
   return (
     <div
@@ -88,7 +90,14 @@ export default async function Home() {
             <Ask />
           </Tab>
           <Tab title='Categories' className='block lg:hidden'>
-            <>{categoriesEl}</>
+            <div className='flex flex-col h-full pl-6'>
+              <h3 className={`text-xl font-bold`}>Categories</h3>
+              <div className={`overflow-hidden`}>{categoriesEl}</div>
+              <h3 className={`text-xl font-bold overflow-hidden pt-5 `}>
+                Questions
+              </h3>
+              <div className={`overflow-hidden `}>{chatsEl}</div>
+            </div>
           </Tab>
         </Tabs>
       </div>
