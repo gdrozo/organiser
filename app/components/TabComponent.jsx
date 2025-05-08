@@ -6,7 +6,7 @@ import TextInput from './TextClasifier'
 import { onChatClick } from './ChatList'
 
 function TabComponent() {
-  const [tab, setTab] = useState(0)
+  const [tab, setTab] = useState()
 
   useEffect(() => {
     onChatClick(chat => {

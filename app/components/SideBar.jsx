@@ -27,6 +27,7 @@ function SideBar({ categoriesEl }) {
           open ? '-ml-3 -mt-3 mb-2' : ''
         } transition-all duration-300 ease-in-out`}
         onClick={() => setOpen(!open)}
+        checked={open}
       />
       <h3
         className={`text-xl font-bold overflow-hidden  ${

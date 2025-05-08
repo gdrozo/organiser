@@ -4,14 +4,16 @@ import { useEffect, useState } from 'react'
 import './tabs.css'
 
 function Tabs({ children, defaultTab, onTabClick, tabState, tabStateSetter }) {
+  const [state, stateSetter] = useState()
+
   if (tabState === undefined || tabStateSetter === undefined) {
-    const [state, stateSetter] = useState(defaultTab)
     tabStateSetter = stateSetter
     tabState = state
   }
 
   useEffect(() => {
     //Get the last selected tab
+
     const lastSelectedTab = parseInt(localStorage.getItem('selectedTab'))
     if (lastSelectedTab) tabStateSetter(lastSelectedTab)
     else tabStateSetter(defaultTab)
@@ -41,7 +43,9 @@ function Tabs({ children, defaultTab, onTabClick, tabState, tabStateSetter }) {
                     sm:w-auto sm:rounded-full sm:bg-white/70 sm:absolute'
         >
           <div
-            className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block '
+            className={`absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden ${
+              tabState === undefined ? 'sm:hidden' : 'sm:block '
+            }`}
             style={{ left: 7 * tabState + 'rem' }}
           ></div>
 
