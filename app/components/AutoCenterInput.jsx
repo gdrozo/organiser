@@ -17,7 +17,7 @@ const AutoCenterInput = ({ className = '', ...props }) => {
   }
 
   function loopResize(i) {
-    if (i >= 100) return
+    if (i >= 100 || ogHeight <= 100) return
 
     const height = window.visualViewport.height
 
@@ -35,6 +35,7 @@ const AutoCenterInput = ({ className = '', ...props }) => {
   }
 
   const onFocusOut = () => {
+    if (ogHeight <= 100) return
     const container = document.getElementById('container')
     container.style.height = `${ogHeight}px`
     container.style.minHeight = `${ogHeight}px`

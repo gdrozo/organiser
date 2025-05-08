@@ -8,14 +8,18 @@ import ChatList from './ChatList'
 function SideBar({ categoriesEl }) {
   const [open, setOpen] = useState(false)
 
+  function handleChatClick(chat) {
+    setOpen(false)
+  }
+
   return (
     <div
-      className={`absolute top-20 left-8 hidden z-30 bg-white rounded-4xl 
-                 flex-col gap-2 lg:flex transition-all duration-300 ease-in-out 
+      className={`fixed lg:absolute lg:top-20 lg:left-8 z-40 bg-white rounded-4xl 
+                 flex flex-col gap-2 transition-all duration-300 ease-in-out 
                  ${
                    open
-                     ? 'justify-start  items-start  bottom-20   p-8 open-animation'
-                     : 'justify-center items-center bottom-auto py-3 px-4'
+                     ? 'justify-start  items-start  top-0 left-0 p-8 lg:large-open-animation small-open-animation'
+                     : 'justify-center items-center top-5 left-7 h-10 w-10 '
                  }`}
     >
       <BurgerOpener
@@ -50,7 +54,7 @@ function SideBar({ categoriesEl }) {
           open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
         }`}
       >
-        <ChatList />
+        <ChatList onClick={handleChatClick} />
       </div>
     </div>
   )

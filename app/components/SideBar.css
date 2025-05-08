@@ -1,19 +1,49 @@
-.open-animation {
-  animation: open-animation 0.5s ease-in-out forwards;
+.small-open-animation {
+  animation: small-open-animation 0.5s ease-in-out forwards;
 }
 
-.open-animation > div,
-.open-animation > h3 {
+.small-open-animation > div,
+.small-open-animation > h3 {
   animation: show-animation 0.5s 0.2s ease-in-out forwards;
   opacity: 0;
 }
 
-@keyframes open-animation {
+@keyframes small-open-animation {
   0% {
     width: 2.5rem;
+    height: calc(var(--spacing) * 10);
   }
+
+  100% {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+.lg\:large-open-animation {
+  @media (width >= 64rem /* 1024px */) {
+    animation: large-open-animation 0.5s ease-in-out forwards;
+  }
+}
+
+.lg\:large-open-animation > div,
+.lg\:large-open-animation > h3 {
+  @media (width >= 64rem /* 1024px */) {
+    animation: show-animation 0.5s 0.2s ease-in-out forwards;
+    opacity: 0;
+  }
+}
+
+@keyframes large-open-animation {
+  0% {
+    width: 2.5rem;
+    height: calc(var(--spacing) * 10);
+  }
+
   100% {
     width: 15rem;
+    height: calc(100% - 8rem /* 128px */);
   }
 }
 

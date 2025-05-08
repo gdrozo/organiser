@@ -132,6 +132,7 @@ export default function Ask({ def_messages }) {
               </div>
             </div>
           )}
+          <div className='py-6'></div>
         </div>
       </div>
 

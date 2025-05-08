@@ -3,13 +3,13 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '@clerk/nextjs' // Assuming Clerk for auth
 import { Button } from '@/components/ui/button'
 
-let listener
+let listeners = []
 
 export function onChatClick(listenerParam) {
-  listener = listenerParam
+  listeners.push(listenerParam)
 }
 
-const ChatList = () => {
+const ChatList = ({ onClick }) => {
   const { isLoading } = useAuth()
   const [chats, setChats] = useState([])
   const [loadingChats, setLoadingChats] = useState(true)
@@ -58,7 +58,8 @@ const ChatList = () => {
   }
 
   const handleClick = chat => {
-    if (listener) listener(chat)
+    listeners.forEach(listener => listener(chat))
+    onClick && onClick(chat)
   }
 
   return (

@@ -15,6 +15,7 @@ export default function ACTextArea({
   useEffect(() => {
     setTimeout(() => {
       setOgHeight(window.visualViewport.height)
+      console.log('ogHeight', window.visualViewport.height)
     }, 50)
   }, [])
 
@@ -28,9 +29,11 @@ export default function ACTextArea({
   }
 
   function loopResize(i) {
-    if (i >= 100) return
+    if (i >= 100 || ogHeight <= 100) return
 
     const height = window.visualViewport.height
+
+    if (height <= 100) return
 
     if (height >= ogHeight - 100 && height <= ogHeight + 100) {
       i++
@@ -46,6 +49,7 @@ export default function ACTextArea({
   }
 
   const blurHandler = e => {
+    if (ogHeight <= 100) return
     const container = document.getElementById('container')
     container.style.height = `${ogHeight}px`
     container.style.minHeight = `${ogHeight}px`

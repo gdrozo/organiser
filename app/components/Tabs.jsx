@@ -3,24 +3,29 @@ import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import './tabs.css'
 
-function Tabs({ children, defaultTab }) {
-  const [selectedTab, setSelectedTab] = useState()
+function Tabs({ children, defaultTab, onTabClick, tabState, tabStateSetter }) {
+  if (tabState === undefined || tabStateSetter === undefined) {
+    const [state, stateSetter] = useState(defaultTab)
+    tabStateSetter = stateSetter
+    tabState = state
+  }
 
   useEffect(() => {
     //Get the last selected tab
     const lastSelectedTab = parseInt(localStorage.getItem('selectedTab'))
-    if (lastSelectedTab) setSelectedTab(lastSelectedTab)
-    else setSelectedTab(defaultTab)
+    if (lastSelectedTab) tabStateSetter(lastSelectedTab)
+    else tabStateSetter(defaultTab)
   }, [])
 
   useEffect(() => {
     //Save the last selected tab
-    if (selectedTab === -1) return
-    localStorage.setItem('selectedTab', selectedTab)
-  }, [selectedTab])
+    if (tabState === -1) return
+    localStorage.setItem('selectedTab', tabState)
+  }, [tabState])
 
   function tabClicked(index) {
-    setSelectedTab(index)
+    tabStateSetter(index)
+    onTabClick && onTabClick(children[index]?.props?.title)
   }
 
   return (
@@ -32,12 +37,12 @@ function Tabs({ children, defaultTab }) {
       >
         <div
           className='flex relative tabs tabs-container bg-white drop-shadow-lg 
-                    w-full rounded-b-none rounded-t-2xl justify-between px-2
+                    w-full rounded-b-none rounded-t-2xl justify-around px-2
                     sm:w-auto sm:rounded-full sm:bg-white/70 sm:absolute'
         >
           <div
             className='absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden sm:block '
-            style={{ left: 7 * selectedTab + 'rem' }}
+            style={{ left: 7 * tabState + 'rem' }}
           ></div>
 
           {children.map((child, index) => (
@@ -47,7 +52,7 @@ function Tabs({ children, defaultTab }) {
               className={
                 'text-black shadow-none h-auto z-10 rounded-lg flex justify-center items-center w-26 py-3 rounded-b-none' +
                 ' ' +
-                (selectedTab === index ? 'active-tab' : 'inactive-tab') +
+                (tabState === index ? 'active-tab' : 'inactive-tab') +
                 ' ' +
                 child.props?.className
               }
@@ -65,7 +70,7 @@ function Tabs({ children, defaultTab }) {
         children.map((c, index) => (
           <div
             className={`w-full z-20 bg-transparent text-black rounded-xl h-full flex 
-              ${selectedTab === index ? 'block' : 'hidden'} ${
+              ${tabState === index ? 'block' : 'hidden'} ${
               index === 0 ? 'unround' : ''
             }`}
             key={index}
