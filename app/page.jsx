@@ -5,28 +5,12 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { SignedIn } from '@clerk/nextjs'
-
-import Categories from './components/Categories'
 import Image from 'next/image'
 import SideBar from './components/SideBar'
-import ChatList from './components/ChatList'
 import TabComponent from './components/TabComponent'
 
 export default async function Home() {
-  const start = performance.now()
-
-  console.log('------------------------------------------------')
-  console.log('Start time')
-
-  //redirect('/auth')
-
-  const end = performance.now()
-
-  console.log(`Total time: ${(end - start) / 1000} seconds`)
-  console.log('------------------------------------------------')
-
-  const categoriesEl = <Categories />
-
+  console.log('page')
   return (
     <div
       id='container'
@@ -60,11 +44,11 @@ export default async function Home() {
         </header>
       </div>
 
-      <div className='flex justify-evenly items-stretch h-[calc(100%-5rem)] min-h-[calc(100%-5rem)] max-h-[calc(100%-5rem)] '>
+      <div className='flex justify-center items-stretch h-[calc(100%-5rem)] min-h-[calc(100%-5rem)] max-h-[calc(100%-5rem)] '>
         {/* */}
         {/* Left sidebar
          */}
-        <SideBar categoriesEl={categoriesEl} />
+        <SideBar />
 
         {/* tabs */}
         <TabComponent />

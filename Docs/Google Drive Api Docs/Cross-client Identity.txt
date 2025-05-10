@@ -1,0 +1,19 @@
+Cross-client Identity
+
+When developers build software, it routinely includes modules that run on a web server, other modules that run in the browser, and others that run as native mobile apps. Both developers and the people who use their software typically think of all these modules as part of a single app.
+
+Google’s OAuth 2.0 implementation supports this view of the world. To use any of the OAuth2.0-based services, you must set up your software in the Google API Console. The unit of organization in the API Console is a "project," which can correspond to a multi-component app. For each project, you can provide branding information, and you must specify which APIs the app will access. Each component of a multi-component app is identified by a client ID, a unique string that is generated in the API Console.
+Cross-client authorization goals
+
+When an app uses OAuth 2.0 for authorization, the app acts on a user's behalf to request an OAuth 2.0 access token for access to a resource, which the app identifies by one or more scope strings. Normally, the user is asked to approve the access.
+
+When a user grants access to your app for a particular scope, the user is looking at the user consent screen, which includes project-level product branding that you set up in the Google API Console. Therefore, Google considers that when a user has granted access to a particular scope to any client ID in a project, the grant indicates the user's trust in the whole application for that scope.
+
+The effect is that the user should not be prompted to approve access to any resource more than once for the same logical application, whenever the components of the application can be reliably authenticated by Google's authorization infrastructure, which today includes web apps, Android apps, Chrome apps, iOS apps, native desktop apps, and limited-input devices.
+Cross-client access tokens
+
+Software can obtain OAuth 2.0 Access tokens in a variety of ways, depending on the platform where the code is running. For details, see Using OAuth 2.0 to Access Google APIs. Normally, user approval is required when granting an access token.
+
+Fortunately, the Google authorization infrastructure can use information about user approvals for a client ID within a given project when evaluating whether to authorize others in the same project.
+
+The effect is that if an Android app requests an access token for a particular scope, and the requesting user has already granted approval to a web application in the same project for that same scope, the user will not be asked once again to approve. This works both ways: if access to a scope has been granted in your Android app, it will not be demanded again from another client in the same project such as a web application.

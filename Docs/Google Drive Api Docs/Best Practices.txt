@@ -1,0 +1,53 @@
+Best Practices
+
+This page covers some general best practices for integrating with OAuth 2.0. Consider these best practices in addition to any specific guidance for your type of application and development platform. Also refer to the advice for getting your app ready for production and Google's OAuth 2.0 policies.
+Handle client credentials securely
+
+The OAuth client credentials identify your app's identity and should be handled carefully. Only store these credentials in secure storage, for example using a secret manager such as Google Cloud Secret Manager. Do not hardcode the credentials, commit them to a code repository or publish them publicly.
+Handle user tokens securely
+
+User tokens include both refresh tokens and access tokens used by your application. Store tokens securely at rest and never transmit them in plain text. Use a secure storage system appropriate for your platform, such as Keystore on Android, Keychain Services on iOS and macOS, or Credential Locker on Windows.
+
+Revoke tokens as soon as they are no longer needed and delete them permanently from your systems.
+
+In addition, also consider these best practices for your platform:
+
+    For server-side applications that store tokens for many users, encrypt them at rest and ensure that your data store is not publicly accessible to the Internet.
+    For native desktop apps, using the Proof Key for Code Exchange (PKCE) protocol is strongly recommended to obtain authorization codes that can be exchanged for access tokens.
+
+Handle refresh token revocation and expiration
+
+If your app has requested a refresh token for offline access, you must also handle their invalidation or expiration. Tokens could be invalidated for different reasons, for example it could have expired or your apps' access could have been revoked by the user or an automated process. In this case, consider carefully how your application should respond, including prompting the user at their next log in or cleaning up their data. To be notified of token revocation, integrate with the Cross-Account Protection service.
+Use incremental authorization
+
+Use incremental authorization to request appropriate OAuth scopes when the functionality is needed by your application.
+
+You should not request access to data when the user first authenticates, unless it is essential for the core functionality of your app. Instead, request only the specific scopes that are needed for a task, following the principle to select the smallest, most limited scopes possible.
+
+Always request scopes in context to help your users understand why your app is requesting access and how the data will be used.
+
+For example, your application may follow this model:
+
+    The user authenticates with your app
+        No additional scopes are requested. The app provides basic functionality to let the user explore and use features that do not require any additional data or access.
+    The user selects a feature that requires access to additional data
+        Your application makes an authorization request for this specific OAuth scope required for this feature. If this feature requires multiple scopes, follow the best practices below.
+        If the user denies the request, the app disables the feature and gives the user additional context to request access again.
+
+Handle consent for multiple scopes
+
+When requesting multiple scopes at once, users may not grant all OAuth scopes you have requested. Your app should handle the denial of scopes by disabling relevant functionality.
+
+If your app's basic functionality requires multiple scopes, explain this to the user before prompting for consent.
+
+You may only prompt the user again once they have clearly indicated an intent to use the specific feature that requires the scope. Your app should provide the user with relevant context and justification before requesting OAuth scopes.
+
+You should minimize the number of scopes your app requests at once. Instead, utilize incremental authorization to request scopes in context of features and functionality.
+Use secure browsers
+
+On the web, OAuth 2.0 authorization requests must only be made from full-featured web browsers. On other platforms, make sure to select the correct OAuth client type and integrate OAuth as appropriate for your platform. Do not redirect the request through embedded browsing environments, including webviews on mobile platforms, such as WebView on Android or WKWebView on iOS. Instead, utilize native OAuth libraries or Google Sign-in for your platform.
+Manual creation and configuration of OAuth clients
+
+In order to prevent abuse, OAuth clients cannot be created or modified programmatically. You must use the Google Developers console to explicitly acknowledge the terms of service, configure your OAuth client and prepare for OAuth verification.
+
+For automated workflows, consider using service accounts instead.

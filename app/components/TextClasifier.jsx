@@ -8,6 +8,7 @@ import Fuse from 'fuse.js'
 import ACTextArea from './ACTextArea'
 
 import './TextClasifier.css'
+import { getCacheCategories } from './CategoriesList'
 
 const options = {
   keys: ['name'], // Fields to search in the data
@@ -17,7 +18,7 @@ const options = {
 const API = '/api/ai/classify'
 
 export default function TextInput() {
-  let categories
+  const [categories, setCategories] = useState([])
 
   const formRef = useRef()
 
@@ -29,7 +30,6 @@ export default function TextInput() {
 
   const [categoriesState, setCategoriesState] = useState(categories)
 
-  //const [category, setCategory] = useState('tumor del saco vitelino')
   const [category, setCategory] = useState('')
 
   const [fuse, setFuse] = useState(new Fuse(categoriesState, options))
@@ -65,6 +65,8 @@ export default function TextInput() {
     event.preventDefault()
     handleSubmit(event)
     setSubmitted(true)
+    const categories = getCacheCategories()
+    setCategories(categories)
   }
 
   function searchCategory(event) {

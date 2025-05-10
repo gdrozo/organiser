@@ -1,20 +1,56 @@
-/**
- * Adds an object to a Firestore document with a given key, generating an auto-ID for the object within the "chats" collection.
- *
- * @param {object} obj The object to add to the document.
- * @param {string} key The key of the document to add the object to.
- * @param {FirebaseFirestore.Firestore} db The Firestore database instance.
- * @returns {Promise<string>} The auto-generated ID of the added object.
- */
-async function addObjectToChat(obj, key, db) {
+const { google } = require('googleapis')
+const { authenticate } = require('@google-cloud/local-auth')
+
+async function getFilesByExtension(folderName, fileExtension) {
   try {
-    const docRef = db.collection('chats').doc(key)
-    const collectionRef = docRef.collection('history') // Using a subcollection for auto-generated IDs
-    const res = await collectionRef.add(obj)
-    console.log('Added document with ID: ', res.id)
-    return res.id
-  } catch (e) {
-    console.error('Error adding document: ', e)
-    throw e
+    const auth = await authenticate({
+      scopes: ['https://www.googleapis.com/auth/drive.readonly'],
+      keyfilePath: 'credentials.json', // Ensure this file exists in your working directory
+    })
+
+    const drive = google.drive({ version: 'v3', auth })
+
+    // Find the folder ID by name and list files with the specified extension
+    let folderId = null
+    const fileListResponse = await drive.files.list({
+      q: `mimeType='application/vnd.google-apps.folder' and name='${folderName}'`,
+      fields: 'files(id)',
+    })
+
+    const folders = fileListResponse.data.files
+    if (folders.length === 0) {
+      console.log(`Folder "${folderName}" not found.`)
+      return []
+    }
+    folderId = folders[0].id
+
+    const filesResponse = await drive.files.list({
+      q: `'${folderId}' in parents and name contains '.${fileExtension}'`,
+      fields: 'files(id, name)',
+    })
+
+    const files = filesResponse.data.files
+
+    if (files.length === 0) {
+      console.log(
+        `No files with extension "${fileExtension}" found in folder "${folderName}".`
+      )
+      return []
+    }
+
+    const fileNames = files.map(file => file.name)
+
+    console.log(
+      `Files with extension "${fileExtension}" in folder "${folderName}":`
+    )
+    console.log(fileNames)
+
+    return fileNames
+  } catch (error) {
+    console.error('Error:', error)
+    return []
   }
 }
+
+// Example usage:
+// getFilesByExtension('My Folder', 'pdf');

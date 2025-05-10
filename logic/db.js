@@ -1,5 +1,6 @@
 import db from '@/logic/firebaseAdmin'
 import { google } from 'googleapis'
+import { hasTokenExpired } from '@/utils/auth'
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
@@ -8,6 +9,7 @@ const REDIRECT_URI =
     ? process.env.DEV_REDIRECT_URI
     : process.env.REDIRECT_URI
 const FOLDER_NAME = process.env.GOOGLE_DRIVE_FOLDER_NAME
+const FILE_EXTENSION = process.env.GOOGLE_DRIVE_FILE_EXTENSION
 
 const googleAuth = new google.auth.OAuth2(
   CLIENT_ID,
@@ -57,6 +59,32 @@ async function createFolder(email, folderId) {
     },
     { merge: true }
   )
+}
+
+export async function queryFolderId(email, drive) {
+  let folderId
+  // Search for the folder by name
+  let folderResponse = await drive.files.list({
+    q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+    fields: 'files(id, name)',
+  })
+
+  if (!folderResponse.data.files.length) {
+    // Create the folder if it doesn't exist
+    folderResponse = await drive.files.create({
+      requestBody: {
+        name: FOLDER_NAME,
+        mimeType: 'application/vnd.google-apps.folder',
+      },
+    })
+    folderId = folderResponse.data.id
+  } else {
+    folderId = folderResponse.data.files[0].id
+  }
+
+  createFolder(email, folderId)
+
+  return folderId
 }
 
 export async function getFolderId(email, drive) {
@@ -127,35 +155,37 @@ export async function getFiles(email) {
     throw new Error('User email is required to retrieve tokens.')
   }
 
-  let start = performance.now()
   const tokens = await getUser(email)
-  let end = performance.now()
-  console.log(`    Tokens time: ${(end - start) / 1000} seconds`)
 
-  start = performance.now()
+  // checking tokens
+  if (!tokens) {
+    console.log('throwing error')
+    throw new Error('Tokens expired')
+  }
 
   const drive = await getDrive(tokens)
 
-  end = performance.now()
+  let folderId = await getFolderId(email, drive)
+  let filesResponse
 
-  console.log(`    Google auth time: ${(end - start) / 1000} seconds`)
-
-  start = performance.now()
-  const folderId = await getFolderId(email, drive)
-  end = performance.now()
-  console.log(`    Folder id time: ${(end - start) / 1000} seconds`)
-
-  start = performance.now()
   // List files in the folder
-  const filesResponse = await drive.files.list({
-    q: `'${folderId}' in parents and trashed=false`,
-    fields: 'files(id, name)',
-  })
+  debugger
+  try {
+    filesResponse = await drive.files.list({
+      q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
+      fields: 'files(id, name)',
+    })
+  } catch (error) {
+    if (error.message.startsWith('File not found')) {
+      folderId = await queryFolderId(email, drive)
+      filesResponse = await drive.files.list({
+        q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
+        fields: 'files(id, name)',
+      })
+    }
+  }
 
   const files = filesResponse.data.files
-
-  end = performance.now()
-  console.log(`    Files time: ${(end - start) / 1000} seconds`)
 
   if (!files || files.length === 0) return null
 
@@ -164,9 +194,7 @@ export async function getFiles(email) {
 
 export async function getDrive(credentials, email = null) {
   if (!credentials) {
-    console.log('getDrive', email)
     credentials = await getUser(email)
-    console.log('credentials', credentials)
   }
 
   googleAuth.setCredentials({
@@ -176,3 +204,11 @@ export async function getDrive(credentials, email = null) {
 
   return google.drive({ version: 'v3', auth: googleAuth })
 }
+
+googleAuth.on('tokens', tokens => {
+  if (tokens.refresh_token) {
+    // store the refresh_token in your secure persistent database
+    //console.log('refresh_token', tokens)
+  }
+  //console.log('access_token', tokens)
+})

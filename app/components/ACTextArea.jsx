@@ -15,7 +15,6 @@ export default function ACTextArea({
   useEffect(() => {
     setTimeout(() => {
       setOgHeight(window.visualViewport.height)
-      console.log('ogHeight', window.visualViewport.height)
     }, 50)
   }, [])
 

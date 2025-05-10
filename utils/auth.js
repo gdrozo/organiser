@@ -14,3 +14,14 @@ export async function getUserEmail() {
     return null
   }
 }
+
+export function hasTokenExpired(tokenObject) {
+  const expiryDate = new Date(tokenObject.expiryDate)
+
+  // Check if the token has expired
+  if (expiryDate < new Date()) {
+    return true
+  }
+
+  return false
+}

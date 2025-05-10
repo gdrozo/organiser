@@ -31,7 +31,7 @@ function Tabs({ children, defaultTab, onTabClick, tabState, tabStateSetter }) {
   }
 
   return (
-    <div className='grow flex flex-col max-w-[97vw] max-h-full'>
+    <div className='grow flex flex-col max-h-full'>
       <div
         className='flex justify-center absolute sm:top-6  left-0 right-0
                    bottom-0 sm:bottom-auto z-30

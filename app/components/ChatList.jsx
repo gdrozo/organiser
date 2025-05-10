@@ -30,10 +30,6 @@ const ChatList = ({ onClick }) => {
         }
         const userChats = await response.json()
         setChats(userChats ? Object.values(userChats) : []) // Assuming chats are stored as an object with user ID as key
-        console.log(
-          'userChats',
-          userChats ? Object.values(userChats) : userChats
-        )
       } catch (err) {
         setError(err)
         console.error('Error fetching chats:', err)

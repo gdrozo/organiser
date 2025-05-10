@@ -36,6 +36,10 @@ export async function GET(req) {
     const userInfo = await oauth2.userinfo.get()
     const userEmail = userInfo.data.email
 
+    //tokens.expiry_date = tokens.expiry_date + Date.now()
+
+    console.log('tokens', tokens)
+
     createUser(userEmail, tokens)
 
     // Redirect back to the app with success status

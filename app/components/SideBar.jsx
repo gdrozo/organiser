@@ -4,9 +4,12 @@ import BurgerOpener from './BurgerOpener'
 
 import './SideBar.css'
 import ChatList from './ChatList'
+import CategoriesList from './CategoriesList'
 
-function SideBar({ categoriesEl }) {
+function SideBar() {
   const [open, setOpen] = useState(false)
+
+  console.log('sidebar', open)
 
   function handleChatClick(chat) {
     setOpen(false)
@@ -41,7 +44,7 @@ function SideBar({ categoriesEl }) {
           open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
         }`}
       >
-        {categoriesEl}
+        <CategoriesList />
       </div>
       <h3
         className={`text-xl font-bold overflow-hidden pt-5 ${

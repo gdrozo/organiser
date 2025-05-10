@@ -20,23 +20,14 @@ const googleAuth = new google.auth.OAuth2(
 )
 
 export async function GetCategories() {
-  let start = performance.now()
-
   if (!(await checkAuth())) throw new Error('Unauthorized access')
 
-  let end = performance.now()
-
-  console.log(`    Auth check time: ${(end - start) / 1000} seconds`)
-
-  start = performance.now()
   // Use Clerk SDK to fetch user details
   const userEmail = await getUserEmail()
 
   if (!userEmail) {
     throw new Error('User email is required to retrieve tokens.')
   }
-  end = performance.now()
-  console.log(`    User email time: ${(end - start) / 1000} seconds`)
 
   const files = await getFiles(userEmail)
 
@@ -115,8 +106,9 @@ export async function addCategory(category, text) {
       },
       requestBody: {
         name: category,
+        fields: 'id',
+
         parents: [folderId],
-        mimeType: 'application/vnd.google-apps.document',
       },
     })
 
@@ -149,6 +141,8 @@ export async function addText(category, text) {
 
     const drive = await getDrive(null, userEmail)
     let file = await getFile(userEmail, category, drive)
+
+    console.log('file', file)
 
     if (file) {
       const updatedContent = file.text + '\n' + text
@@ -192,11 +186,17 @@ export async function addText(category, text) {
         body: fs.createReadStream(tempFilePath),
       }
 
-      file = await drive.files.create({
-        requestBody,
-        media: media,
-      })
-      console.log('File Id:', file.data.id)
+      try {
+        file = await drive.files.create({
+          requestBody,
+          media: media,
+        })
+        console.log('File Id:', file.data.id)
+      } catch (error) {
+        // The folder doesn't exist, create it
+        await addCategory(category, text)
+        return
+      }
 
       // Delete the temporary file
       fs.unlinkSync(tempFilePath)
