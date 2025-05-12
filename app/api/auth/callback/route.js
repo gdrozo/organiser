@@ -38,8 +38,6 @@ export async function GET(req) {
 
     //tokens.expiry_date = tokens.expiry_date + Date.now()
 
-    console.log('tokens', tokens)
-
     createUser(userEmail, tokens)
 
     // Redirect back to the app with success status

@@ -9,8 +9,6 @@ import CategoriesList from './CategoriesList'
 function SideBar() {
   const [open, setOpen] = useState(false)
 
-  console.log('sidebar', open)
-
   function handleChatClick(chat) {
     setOpen(false)
   }

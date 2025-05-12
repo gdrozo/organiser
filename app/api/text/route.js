@@ -1,8 +1,8 @@
-import { GetCategories, addCategory, addText } from '@/logic/Categories'
+import { getCategories, addCategory, addText } from '@/logic/Categories'
 
 export async function GET(req) {
   try {
-    const categories = await GetCategories()
+    const categories = await getCategories()
     return new Response(JSON.stringify({ categories }), { status: 200 })
   } catch (error) {
     if (error.message === 'Unauthorized access') {

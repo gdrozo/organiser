@@ -1,9 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useCategories } from '@/hooks/useCategories'
-import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
-import { use, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export function getCacheCategories() {
@@ -17,8 +15,16 @@ export default function CategoriesList() {
   useEffect(() => {
     ;(async () => {
       try {
-        console.log('    fetching categories')
-        const data = await (await fetch('/api/categories')).json()
+        const serverResponse = await fetch('/api/categories')
+
+        if (!serverResponse.ok) {
+          debugger
+          setFetchState(serverResponse.statusText)
+          if (serverResponse.status === 401) router.push('/auth')
+          return
+        }
+
+        const data = await serverResponse.json()
         if (window) window.categories = data
         setFetchState(data)
       } catch (error) {
@@ -27,16 +33,6 @@ export default function CategoriesList() {
       }
     })()
   }, [])
-
-  /*
-  if (!cacheData.current) {
-    const result = useCategories()
-    categories = result.data
-    error = result.error
-    isLoading = result.isLoading
-  }*/
-
-  console.log('Component', fetchState)
 
   return (
     <>

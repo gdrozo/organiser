@@ -10,7 +10,6 @@ import SideBar from './components/SideBar'
 import TabComponent from './components/TabComponent'
 
 export default async function Home() {
-  console.log('page')
   return (
     <div
       id='container'

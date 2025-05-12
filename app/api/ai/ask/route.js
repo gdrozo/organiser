@@ -1,6 +1,6 @@
 import { createOpenRouter } from '@openrouter/ai-sdk-provider'
 import { streamText } from 'ai'
-import { GetCategories, getText } from '@/logic/Categories'
+import { getCategories, getText } from '@/logic/Categories'
 import { generateText } from 'ai'
 import { checkAuth } from '@/utils/auth'
 import { streamTextTunnel } from '@/utils/streamHelper'
@@ -45,7 +45,7 @@ export async function POST(req) {
 
     ;(async () => {
       tunnel.sendMessage('status:loading categories')
-      const categories = await GetCategories()
+      const categories = await getCategories()
 
       let systemPrompt = SYSTEM_PROMPT
 

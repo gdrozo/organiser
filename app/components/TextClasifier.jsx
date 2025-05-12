@@ -48,7 +48,6 @@ export default function TextInput() {
       setCategory(messages[1].content)
       setSubmitted(true)
     }
-    //console.log('messages', messages)
     return () => {}
   }, [messages, status])
 
@@ -77,7 +76,6 @@ export default function TextInput() {
     if (!query) return setResults(categories) // Return all data if the query is empty
 
     const results = fuse.search(query)
-    console.log('results', results)
 
     setResults(results || [])
 

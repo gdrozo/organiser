@@ -19,15 +19,13 @@ const googleAuth = new google.auth.OAuth2(
   REDIRECT_URI
 )
 
-export async function GetCategories() {
+export async function getCategories() {
   if (!(await checkAuth())) throw new Error('Unauthorized access')
 
-  // Use Clerk SDK to fetch user details
+  // Use Clerk SDK to fetch use r details
   const userEmail = await getUserEmail()
 
-  if (!userEmail) {
-    throw new Error('User email is required to retrieve tokens.')
-  }
+  if (!userEmail) throw new Error('User email is required to retrieve tokens.')
 
   const files = await getFiles(userEmail)
 

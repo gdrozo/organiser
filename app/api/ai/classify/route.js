@@ -78,7 +78,6 @@ async function uploadTextToDrive(text) {
       requestBody,
       media: media,
     })
-    console.log('File Id:', file.data.id)
 
     // Delete the temporary file
     fs.unlinkSync(tempFilePath)

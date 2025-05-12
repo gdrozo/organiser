@@ -1,5 +1,5 @@
 'use client'
-import { SignIn } from '@clerk/nextjs'
+import { SignIn, SignUp } from '@clerk/nextjs'
 import { useState } from 'react'
 
 function page() {
@@ -22,11 +22,11 @@ function page() {
             onClick={() => setState('ml-[calc(100vw*-1)]')}
             className='px-12 py-3 rounded-2xl font-extrabold m-5 bg-black text-white cursor-pointer'
           >
-            Sign in
+            Sign up
           </button>
         </div>
         <div className='h-screen w-screen min-h-screen min-w-screen flex flex-col justify-center items-center'>
-          <SignIn />
+          <SignUp />
         </div>
       </div>
     </div>

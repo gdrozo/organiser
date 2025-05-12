@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server'
-import { GetCategories } from '@/logic/Categories'
+import { getCategories } from '@/logic/Categories'
 
 export async function GET(request) {
   try {
-    console.log('Categories GET')
-    const categories = await GetCategories()
+    const categories = await getCategories()
     return NextResponse.json(categories)
     // Catch token expired
   } catch (error) {
-    if (error.message === 'Tokens expired') {
-      console.log('inner error')
+    if (
+      error.message === 'Tokens expired' ||
+      error.message === 'No tokens found for the given user.'
+    ) {
       const url = new URL(request.url)
       const origin = url.origin
 

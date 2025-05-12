@@ -9,7 +9,6 @@ const REDIRECT_URI =
     ? process.env.DEV_REDIRECT_URI
     : process.env.REDIRECT_URI
 const FOLDER_NAME = process.env.GOOGLE_DRIVE_FOLDER_NAME
-const FILE_EXTENSION = process.env.GOOGLE_DRIVE_FILE_EXTENSION
 
 const googleAuth = new google.auth.OAuth2(
   CLIENT_ID,
@@ -18,14 +17,18 @@ const googleAuth = new google.auth.OAuth2(
 )
 
 export async function getUser(email) {
-  const userRef = db.collection('users').doc(email)
-  const userSnapshot = await userRef.get()
+  try {
+    const userRef = db.collection('users').doc(email)
+    const userSnapshot = await userRef.get()
 
-  if (!userSnapshot.exists) {
+    if (!userSnapshot.exists) {
+      throw new Error('No tokens found for the given user.')
+    }
+
+    return userSnapshot.data()
+  } catch (error) {
     throw new Error('No tokens found for the given user.')
   }
-
-  return userSnapshot.data()
 }
 
 export async function createUser(email, tokens) {
@@ -42,12 +45,17 @@ export async function createUser(email, tokens) {
 }
 
 async function getFolderIdFromFirebase(email) {
-  const folderRef = db.collection('folders').doc(email)
-  const folderSnapshot = await folderRef.get()
+  try {
+    const folderRef = db.collection('folders').doc(email)
+    const folderSnapshot = await folderRef.get()
 
-  if (!folderSnapshot.exists) return null
+    if (!folderSnapshot.exists) return null
 
-  return folderSnapshot.data()
+    return folderSnapshot.data()
+  } catch (error) {
+    console.error('Error getting folder:', error)
+    throw new Error('No tokens found for the given user.')
+  }
 }
 
 async function createFolder(email, folderId) {
@@ -62,29 +70,34 @@ async function createFolder(email, folderId) {
 }
 
 export async function queryFolderId(email, drive) {
-  let folderId
-  // Search for the folder by name
-  let folderResponse = await drive.files.list({
-    q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    fields: 'files(id, name)',
-  })
-
-  if (!folderResponse.data.files.length) {
-    // Create the folder if it doesn't exist
-    folderResponse = await drive.files.create({
-      requestBody: {
-        name: FOLDER_NAME,
-        mimeType: 'application/vnd.google-apps.folder',
-      },
+  try {
+    let folderId
+    // Search for the folder by name
+    let folderResponse = await drive.files.list({
+      q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id, name)',
     })
-    folderId = folderResponse.data.id
-  } else {
-    folderId = folderResponse.data.files[0].id
+
+    if (!folderResponse.data.files.length) {
+      // Create the folder if it doesn't exist
+      folderResponse = await drive.files.create({
+        requestBody: {
+          name: FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+        },
+      })
+      folderId = folderResponse.data.id
+    } else {
+      folderId = folderResponse.data.files[0].id
+    }
+
+    createFolder(email, folderId)
+
+    return folderId
+  } catch (error) {
+    console.error('Error getting folder:', error)
+    throw new Error('No tokens found for the given user.')
   }
-
-  createFolder(email, folderId)
-
-  return folderId
 }
 
 export async function getFolderId(email, drive) {
@@ -92,28 +105,33 @@ export async function getFolderId(email, drive) {
 
   if (folderId) return folderId.folderId
 
-  // Search for the folder by name
-  let folderResponse = await drive.files.list({
-    q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
-    fields: 'files(id, name)',
-  })
-
-  if (!folderResponse.data.files.length) {
-    // Create the folder if it doesn't exist
-    folderResponse = await drive.files.create({
-      requestBody: {
-        name: FOLDER_NAME,
-        mimeType: 'application/vnd.google-apps.folder',
-      },
+  try {
+    // Search for the folder by name
+    let folderResponse = await drive.files.list({
+      q: `name='${FOLDER_NAME}' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+      fields: 'files(id, name)',
     })
-    folderId = folderResponse.data.id
-  } else {
-    folderId = folderResponse.data.files[0].id
+
+    if (!folderResponse.data.files.length) {
+      // Create the folder if it doesn't exist
+      folderResponse = await drive.files.create({
+        requestBody: {
+          name: FOLDER_NAME,
+          mimeType: 'application/vnd.google-apps.folder',
+        },
+      })
+      folderId = folderResponse.data.id
+    } else {
+      folderId = folderResponse.data.files[0].id
+    }
+
+    createFolder(email, folderId)
+
+    return folderId
+  } catch (error) {
+    console.error('Error getting folder:', error)
+    throw new Error('No tokens found for the given user.')
   }
-
-  createFolder(email, folderId)
-
-  return folderId
 }
 
 export async function getFile(email, fileName, drive) {
@@ -151,15 +169,13 @@ export async function getFile(email, fileName, drive) {
 }
 
 export async function getFiles(email) {
-  if (!email) {
-    throw new Error('User email is required to retrieve tokens.')
-  }
+  if (!email) throw new Error('User email is required to retrieve tokens.')
 
   const tokens = await getUser(email)
 
   // checking tokens
   if (!tokens) {
-    console.log('throwing error')
+    console.Error('No tokens found for the given user.')
     throw new Error('Tokens expired')
   }
 
@@ -168,21 +184,28 @@ export async function getFiles(email) {
   let folderId = await getFolderId(email, drive)
   let filesResponse
 
-  // List files in the folder
-  debugger
   try {
-    filesResponse = await drive.files.list({
-      q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
-      fields: 'files(id, name)',
-    })
-  } catch (error) {
-    if (error.message.startsWith('File not found')) {
-      folderId = await queryFolderId(email, drive)
+    // List files in the folder
+    try {
       filesResponse = await drive.files.list({
         q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
         fields: 'files(id, name)',
       })
+    } catch (error) {
+      if (error.message.startsWith('File not found')) {
+        folderId = await queryFolderId(email, drive)
+        filesResponse = await drive.files.list({
+          q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
+          fields: 'files(id, name)',
+        })
+      } else {
+        console.error('Error getting files:', error)
+        throw new Error('No tokens found for the given user.')
+      }
     }
+  } catch (error) {
+    console.error('Error getting files:', error)
+    throw new Error('No tokens found for the given user.')
   }
 
   const files = filesResponse.data.files
@@ -197,12 +220,17 @@ export async function getDrive(credentials, email = null) {
     credentials = await getUser(email)
   }
 
-  googleAuth.setCredentials({
-    access_token: credentials.accessToken,
-    refresh_token: credentials.refreshToken,
-  })
+  try {
+    googleAuth.setCredentials({
+      access_token: credentials.accessToken,
+      refresh_token: credentials.refreshToken,
+    })
 
-  return google.drive({ version: 'v3', auth: googleAuth })
+    return google.drive({ version: 'v3', auth: googleAuth })
+  } catch (error) {
+    console.error('Error getting drive:', error)
+    throw new Error('No tokens found for the given user.')
+  }
 }
 
 googleAuth.on('tokens', tokens => {
