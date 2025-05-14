@@ -9,6 +9,7 @@ import ACTextArea from './ACTextArea'
 
 import './TextClasifier.css'
 import { getCacheCategories } from './CategoriesList'
+import AutoCenterInput from './AutoCenterInput'
 
 const options = {
   keys: ['name'], // Fields to search in the data
@@ -161,7 +162,11 @@ export default function TextInput() {
         </form>
 
         {submitted && (
-          <div className='fixed top-0 left-0 right-0 bottom-0 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center p-30 gap-2'>
+          <div
+            id='results'
+            className='fixed top-0 left-0 right-0 bottom-0 backdrop-blur-xs rounded-lg flex flex-col items-center justify-center 
+                       gap-2 z-50'
+          >
             {status !== 'ready' && (
               <div className='grow flex items-center justify-center'>
                 <svg
@@ -182,54 +187,111 @@ export default function TextInput() {
             )}
 
             {status === 'ready' && (
-              <div className='max-w-md flex flex-col gap-2'>
-                <div className='relative max-w-md flex justify-center items-center'>
-                  <Input
+              <div className='flex min-w-[min(90%,35rem)] w-[min(90%,35rem)] relative'>
+                <div className='relative grow  flex justify-center items-center'>
+                  <AutoCenterInput
+                    target='results'
                     placeholder='Enter your own category'
                     value={category}
                     onChange={searchCategory}
-                    className='z-10 relative bg-white text-base'
+                    className='z-10 relative bg-white text-base rounded-r-none'
                     onKeyDown={handleKeyDown}
                   />
-                  <div className='absolute bg-white top-full right-0 left-0 -mt-1 pt-1 z-0 border rounded-b-md'>
-                    {results?.map(result =>
-                      result && result.item ? (
-                        <div
-                          key={result.item}
-                          className='px-2 hover:bg-gray-200 cursor-pointer text-base'
-                          onClick={() => onClickCategory(result.item)}
-                        >
-                          {result.item} caca
-                        </div>
-                      ) : !result.name ? (
-                        <div
-                          key={result}
-                          className='px-2 hover:bg-gray-200 cursor-pointer text-base'
-                          onClick={() => onClickCategory(result)}
-                        >
-                          {result} tt
-                        </div>
-                      ) : (
-                        <div
-                          key={result}
-                          className='px-2 hover:bg-gray-200 cursor-pointer text-base'
-                          onClick={() => onClickCategory(result.name)}
-                        >
-                          {result} zaza
-                        </div>
-                      )
-                    )}
-                  </div>
                 </div>
 
-                <Button className='max-w-md w-full' onClick={done}>
-                  Done
+                <Button className='rounded-l-none' onClick={done}>
+                  Save
                 </Button>
+                {results.length > 0 && (
+                  <div className='absolute bg-white top-full right-0 left-0  pt-1 z-0 border rounded-b-md flex flex-col'>
+                    {results &&
+                      results?.map(result =>
+                        result && result.item ? (
+                          <Button
+                            key={result.item}
+                            className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                            onClick={() => onClickCategory(result.item)}
+                          >
+                            {result.item}
+                          </Button>
+                        ) : !result.name ? (
+                          <Button
+                            key={result}
+                            className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                            onClick={() => onClickCategory(result)}
+                          >
+                            {result}
+                          </Button>
+                        ) : (
+                          <Button
+                            key={result}
+                            className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                            onClick={() => onClickCategory(result.name)}
+                          >
+                            {result}
+                          </Button>
+                        )
+                      )}
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function ClassificationResult({ options, category }) {
+  return (
+    <div className='flex min-w-[min(90%,35rem)] w-[min(90%,35rem)] relative'>
+      <div className='relative grow  flex justify-center items-center'>
+        <AutoCenterInput
+          target='results'
+          placeholder='Enter your own category'
+          value={category}
+          onChange={searchCategory}
+          className='z-10 relative bg-white text-base rounded-r-none'
+          onKeyDown={handleKeyDown}
+        />
+      </div>
+
+      <Button className='rounded-l-none' onClick={done}>
+        Save
+      </Button>
+      {results.length > 0 && (
+        <div className='absolute bg-white top-full right-0 left-0  pt-1 z-0 border rounded-b-md flex flex-col'>
+          {results &&
+            results?.map(result =>
+              result && result.item ? (
+                <Button
+                  key={result.item}
+                  className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                  onClick={() => onClickCategory(result.item)}
+                >
+                  {result.item}
+                </Button>
+              ) : !result.name ? (
+                <Button
+                  key={result}
+                  className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                  onClick={() => onClickCategory(result)}
+                >
+                  {result}
+                </Button>
+              ) : (
+                <Button
+                  key={result}
+                  className='px-2 hover:bg-gray-200 cursor-pointer text-base bg-transparent text-black shadow-none'
+                  onClick={() => onClickCategory(result.name)}
+                >
+                  {result}
+                </Button>
+              )
+            )}
+        </div>
+      )}
     </div>
   )
 }

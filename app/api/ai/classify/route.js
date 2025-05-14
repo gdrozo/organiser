@@ -12,7 +12,7 @@ export async function POST(req) {
     const { userId } = await auth()
 
     // If the user is not signed in, return a 401 Unauthorized response
-    if (!userId) {
+    if (!userId)
       return new Response(
         JSON.stringify({ error: 'Unauthorized access: Please sign in.' }),
         {
@@ -20,7 +20,6 @@ export async function POST(req) {
           headers: { 'Content-Type': 'application/json' },
         }
       )
-    }
 
     // Parse the request body
     const { messages } = await req.json()
@@ -37,7 +36,7 @@ export async function POST(req) {
     const result = streamText({
       model: openrouter(process.env.MODEL_ID), // Dynamically fetch model ID
       system:
-        'You classify medical text into a specific category. Just provide the classification NOT ANYTHING ELSE', // Define system behavior
+        'Classify medical text into a specific category, be specific as this is a medical text. Just provide the classification NOT ANYTHING ELSE', // Define system behavior
       messages: preparedMessages, // Ensure chat context is passed
     })
 
@@ -49,43 +48,5 @@ export async function POST(req) {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })
-  }
-}
-
-async function uploadTextToDrive(text) {
-  // Get credentials and build service
-  const auth = new GoogleAuth({
-    scopes: 'https://www.googleapis.com/auth/drive.file', // Use drive.file scope
-  })
-  const service = google.drive({ version: 'v3', auth })
-
-  // Create a temporary file with the given text
-  const tempFilePath = 'temp.txt'
-  fs.writeFileSync(tempFilePath, text)
-
-  const requestBody = {
-    name: 'text.txt', // Set the file name
-    fields: 'id',
-  }
-
-  const media = {
-    mimeType: 'text/plain', // Set the MIME type to text/plain
-    body: fs.createReadStream(tempFilePath),
-  }
-
-  try {
-    const file = await service.files.create({
-      requestBody,
-      media: media,
-    })
-
-    // Delete the temporary file
-    fs.unlinkSync(tempFilePath)
-
-    return file.data.id
-  } catch (err) {
-    // TODO(developer) - Handle error
-    console.error('Error uploading file:', err)
-    throw err
   }
 }

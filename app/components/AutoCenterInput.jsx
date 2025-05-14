@@ -2,7 +2,11 @@
 import { Input } from '@/components/ui/input'
 import { useEffect, useRef, useState } from 'react'
 
-const AutoCenterInput = ({ className = '', ...props }) => {
+const AutoCenterInput = ({
+  className = '',
+  target = 'container',
+  ...props
+}) => {
   const inputRef = useRef(null)
   const [ogHeight, setOgHeight] = useState(0)
 
@@ -27,7 +31,7 @@ const AutoCenterInput = ({ className = '', ...props }) => {
       return
     }
 
-    const container = document.getElementById('container')
+    const container = document.getElementById(target)
     container.style.height = `${height}px`
     container.style.minHeight = `${height}px`
     container.style.maxHeight = `${height}px`
@@ -36,7 +40,7 @@ const AutoCenterInput = ({ className = '', ...props }) => {
 
   const onFocusOut = () => {
     if (ogHeight <= 100) return
-    const container = document.getElementById('container')
+    const container = document.getElementById(target)
     container.style.height = `${ogHeight}px`
     container.style.minHeight = `${ogHeight}px`
     container.style.maxHeight = `${ogHeight}px`

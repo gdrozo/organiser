@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import BurgerOpener from './BurgerOpener'
 
 import './SideBar.css'
@@ -9,54 +9,46 @@ import CategoriesList from './CategoriesList'
 function SideBar() {
   const [open, setOpen] = useState(false)
 
-  function handleChatClick(chat) {
-    setOpen(false)
+  function toggle() {
+    setOpen(!open)
   }
 
   return (
-    <div
-      className={`fixed lg:absolute lg:top-20 lg:left-8 z-40 bg-white rounded-4xl 
-                 flex flex-col gap-2 transition-all duration-300 ease-in-out 
+    <div className='side-bar'>
+      <div
+        className={`fixed lg:absolute lg:top-20 lg:left-8 z-40 bg-white rounded-2xl
+                 flex flex-col ease-in-out justify-start items-start close-animation 
                  ${
                    open
-                     ? 'justify-start  items-start  top-0 left-0 p-8 lg:large-open-animation small-open-animation'
-                     : 'justify-center items-center top-5 left-7 h-10 w-10 '
+                     ? 'top-0 left-0 lg:large-open-animation small-open-animation'
+                     : 'top-5 left-7 p-3 '
                  }`}
-    >
-      <BurgerOpener
-        className={`${
-          open ? '-ml-3 -mt-3 mb-2' : ''
-        } transition-all duration-300 ease-in-out`}
-        onClick={() => setOpen(!open)}
-        checked={open}
-      />
-      <h3
-        className={`text-xl font-bold overflow-hidden  ${
-          open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
-        }`}
       >
-        Categories
-      </h3>
-      <div
-        className={`overflow-hidden ${
-          open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
-        }`}
-      >
-        <CategoriesList />
-      </div>
-      <h3
-        className={`text-xl font-bold overflow-hidden pt-5 ${
-          open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
-        }`}
-      >
-        Questions
-      </h3>
-      <div
-        className={`overflow-hidden ${
-          open ? 'w-auto h-auto' : 'w-0 h-0 hidden'
-        }`}
-      >
-        <ChatList onClick={handleChatClick} />
+        <BurgerOpener
+          className={`${open ? 'move-burger-open -ml-3 -mt-3 mb-2' : ''}   `}
+          onClick={toggle}
+          checked={open}
+        />
+        <h3
+          className={`text-xl font-bold overflow-hidden {
+            open ? '' : ''
+          }`}
+        >
+          Categories
+        </h3>
+        <div className={`overflow-hidden`}>
+          <CategoriesList />
+        </div>
+        <h3
+          className={`text-xl font-bold overflow-hidden ${
+            open ? 'pt-5' : 'p-0'
+          }`}
+        >
+          Questions
+        </h3>
+        <div className={`overflow-hidden`}>
+          <ChatList onClick={toggle} />
+        </div>
       </div>
     </div>
   )

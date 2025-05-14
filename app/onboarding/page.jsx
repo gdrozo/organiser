@@ -26,7 +26,7 @@ function page() {
           </button>
         </div>
         <div className='h-screen w-screen min-h-screen min-w-screen flex flex-col justify-center items-center'>
-          <SignUp />
+          <SignIn />
         </div>
       </div>
     </div>

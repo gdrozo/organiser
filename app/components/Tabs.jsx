@@ -38,15 +38,15 @@ function Tabs({ children, defaultTab, onTabClick, tabState, tabStateSetter }) {
       '
       >
         <div
-          className='flex relative tabs tabs-container bg-white drop-shadow-lg 
-                    w-full rounded-b-none rounded-t-2xl justify-around px-2
-                    sm:w-auto sm:rounded-full sm:bg-white/70 sm:absolute'
+          className='flex relative tabs tabs-container bg-white 
+                    w-full rounded-b-none rounded-t-2xl justify-around
+                    sm:w-auto sm:rounded-full sm:bg-[#ebd0e3] sm:absolute'
         >
           <div
-            className={`absolute bg-white rounded-full bottom-0 top-0 w-28 transition-all duration-300 ease-in-out shadow hidden ${
+            className={`absolute bg-[#fff6fd] rounded-full bottom-0 top-0 w-26 transition-all duration-300 ease-in-out shadow-lg hidden ${
               tabState === undefined ? 'sm:hidden' : 'sm:block '
             }`}
-            style={{ left: 7 * tabState + 'rem' }}
+            style={{ left: 6.5 * tabState + 'rem' }}
           ></div>
 
           {children.map((child, index) => (
