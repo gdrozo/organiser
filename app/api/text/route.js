@@ -20,6 +20,7 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    debugger
     const { category, text } = await req.json()
 
     await addText(category, text)

@@ -1,5 +1,4 @@
-import { createUser } from '@/logic/db'
-import db from '@/logic/firebaseAdmin'
+import { createUser, getUserId } from '@/logic/db'
 import { google } from 'googleapis'
 
 const CLIENT_ID = process.env.CLIENT_ID
@@ -12,6 +11,8 @@ const REDIRECT_URI =
 const auth = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI)
 
 export async function GET(req) {
+  console.log('callback')
+
   const url = new URL(req.url)
   const code = url.searchParams.get('code')
 
@@ -36,9 +37,9 @@ export async function GET(req) {
     const userInfo = await oauth2.userinfo.get()
     const userEmail = userInfo.data.email
 
-    //tokens.expiry_date = tokens.expiry_date + Date.now()
+    const userId = await getUserId(userEmail)
 
-    createUser(userEmail, tokens)
+    await createUser(userId, tokens)
 
     // Redirect back to the app with success status
     return new Response(null, {

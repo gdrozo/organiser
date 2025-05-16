@@ -12,23 +12,37 @@ export function createStreamingResponse(controller, encoder) {
   })()
 }
 
-export async function streamTextTunnel() {
+export async function streamTextTunnel(f) {
+  const STATUS = 'status:'
+  const RESPONSE = 'response:'
+  const ERROR = 'error:'
+
   const encoder = new TextEncoder()
   const [stream, controller] = await getReadableStream()
 
   const sendMessage = message => {
-    controller.enqueue(encoder.encode(message + '\n'))
+    controller.enqueue(encoder.encode(STATUS + message + '\n'))
+  }
+
+  const sendResponse = message => {
+    controller.enqueue(encoder.encode(RESPONSE + message + '\n'))
+  }
+
+  const sendError = message => {
+    controller.enqueue(encoder.encode(ERROR + message + '\n'))
   }
 
   const close = () => {
     controller.close()
   }
 
-  return {
+  const tunnel = {
     stream,
     controller,
     close,
     sendMessage,
+    sendResponse,
+    sendError,
     response: new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
@@ -37,6 +51,10 @@ export async function streamTextTunnel() {
       },
     }),
   }
+
+  if (f && typeof f === 'function') f(tunnel)
+
+  return tunnel
 }
 
 async function getReadableStream() {

@@ -36,22 +36,25 @@ export default function Ask({ def_messages }) {
 
   async function processIncomingMessage(message) {
     const STATUS = 'status:'
-    const RESPONSE = 'response:'
 
     if (message.startsWith(STATUS)) {
       const status = message.replace(STATUS, '')
       setTimeout(() => {
         setStatus(status)
       }, 500)
-    } else if (message.startsWith(RESPONSE)) {
-      const response = message.replace(RESPONSE, '')
-
-      setResponse({
-        role: 'assistant',
-        content: response,
-      })
-      setStatus()
     }
+  }
+
+  function setFinalData(result) {
+    const RESPONSE = 'response:'
+
+    const response = result.replace(RESPONSE, '')
+
+    setResponse({
+      role: 'assistant',
+      content: response,
+    })
+    setStatus()
   }
 
   const handleSubmit = async () => {
@@ -74,8 +77,8 @@ export default function Ask({ def_messages }) {
       API,
       body,
       update => processIncomingMessage(update),
-      finalData => processIncomingMessage(finalData),
-      () => setStatus('error')
+      finalData => setFinalData(finalData),
+      error => setStatus('error: ' + error)
     )
 
     setInput('')

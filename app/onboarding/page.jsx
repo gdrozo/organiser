@@ -1,5 +1,5 @@
 'use client'
-import { SignIn, SignUp } from '@clerk/nextjs'
+import { SignIn } from '@clerk/nextjs'
 import { useState } from 'react'
 
 function page() {

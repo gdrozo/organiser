@@ -1,4 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import db from '@/logic/firebaseAdmin'
 
 // Function to create or update a user's chat list

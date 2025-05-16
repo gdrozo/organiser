@@ -23,9 +23,11 @@ export async function fetchStream(url, body, onUpdate, onComplete, onError) {
 
         if (chunk.startsWith(STATUS)) {
           onUpdate(chunk)
-        } else {
+        } else if (chunk.startsWith(RESPONSE)) {
           onComplete(chunk)
           return
+        } else {
+          onError(chunk)
         }
 
         setTimeout(loop, 100)

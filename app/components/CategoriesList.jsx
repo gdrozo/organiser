@@ -18,7 +18,6 @@ export default function CategoriesList() {
         const serverResponse = await fetch('/api/categories')
 
         if (!serverResponse.ok) {
-          debugger
           setFetchState(serverResponse.statusText)
           if (serverResponse.status === 401) router.push('/auth')
           return

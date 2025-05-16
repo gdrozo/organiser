@@ -95,7 +95,6 @@ export default function TextInput() {
   }
 
   function onClickCategory(category) {
-    debugger
     setCategory(category)
     setResults([])
   }

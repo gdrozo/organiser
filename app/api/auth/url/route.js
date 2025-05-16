@@ -1,4 +1,5 @@
 import { google } from 'googleapis'
+import { NextResponse } from 'next/server'
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
@@ -26,13 +27,16 @@ export async function GET() {
       prompt: 'consent', // Force re-consent to refresh token
     })
 
-    return new Response(JSON.stringify({ authUrl, REDIRECT_URI }), {
-      status: 200,
-    })
+    return NextResponse.json(
+      { authUrl, REDIRECT_URI },
+      {
+        status: 200,
+      }
+    )
   } catch (error) {
     console.error('Error generating auth URL:', error)
-    return new Response(
-      JSON.stringify({ error: 'Failed to generate authorization URL' }),
+    return NextResponse.json(
+      { error: 'Failed to generate authorization URL' },
       { status: 500 }
     )
   }

@@ -1,6 +1,5 @@
 import db from '@/logic/firebaseAdmin'
 import { google } from 'googleapis'
-import { hasTokenExpired } from '@/utils/auth'
 
 const CLIENT_ID = process.env.CLIENT_ID
 const CLIENT_SECRET = process.env.CLIENT_SECRET
@@ -16,9 +15,9 @@ const googleAuth = new google.auth.OAuth2(
   REDIRECT_URI
 )
 
-export async function getUser(email) {
+export async function getUser(userId) {
   try {
-    const userRef = db.collection('users').doc(email)
+    const userRef = db.collection('users').doc(userId)
     const userSnapshot = await userRef.get()
 
     if (!userSnapshot.exists) {
@@ -31,8 +30,8 @@ export async function getUser(email) {
   }
 }
 
-export async function createUser(email, tokens) {
-  const userRef = db.collection('users').doc(email)
+export async function createUser(userId, tokens) {
+  const userRef = db.collection('users').doc(userId)
 
   await userRef.set(
     {
@@ -44,9 +43,9 @@ export async function createUser(email, tokens) {
   )
 }
 
-async function getFolderIdFromFirebase(email) {
+async function getFolderIdFromFirebase(userId) {
   try {
-    const folderRef = db.collection('folders').doc(email)
+    const folderRef = db.collection('folders').doc(userId)
     const folderSnapshot = await folderRef.get()
 
     if (!folderSnapshot.exists) return null
@@ -58,8 +57,8 @@ async function getFolderIdFromFirebase(email) {
   }
 }
 
-async function createFolder(email, folderId) {
-  const folderRef = db.collection('folders').doc(email)
+async function createFolder(userId, folderId) {
+  const folderRef = db.collection('folders').doc(userId)
 
   await folderRef.set(
     {
@@ -69,7 +68,7 @@ async function createFolder(email, folderId) {
   )
 }
 
-export async function queryFolderId(email, drive) {
+export async function queryFolderId(userId, drive) {
   try {
     let folderId
     // Search for the folder by name
@@ -91,7 +90,7 @@ export async function queryFolderId(email, drive) {
       folderId = folderResponse.data.files[0].id
     }
 
-    createFolder(email, folderId)
+    createFolder(userId, folderId)
 
     return folderId
   } catch (error) {
@@ -100,8 +99,8 @@ export async function queryFolderId(email, drive) {
   }
 }
 
-export async function getFolderId(email, drive) {
-  let folderId = await getFolderIdFromFirebase(email)
+export async function getFolderId(userId, drive) {
+  let folderId = await getFolderIdFromFirebase(userId)
 
   if (folderId) return folderId.folderId
 
@@ -125,7 +124,7 @@ export async function getFolderId(email, drive) {
       folderId = folderResponse.data.files[0].id
     }
 
-    createFolder(email, folderId)
+    createFolder(userId, folderId)
 
     return folderId
   } catch (error) {
@@ -134,15 +133,15 @@ export async function getFolderId(email, drive) {
   }
 }
 
-export async function getFile(email, fileName, drive) {
-  if (!email) throw new Error('User email is required to retrieve tokens.')
+export async function getFile(userId, fileName, folderId, drive) {
+  if (!userId) throw new Error('User id is required to retrieve tokens.')
 
-  if (!drive) drive = await getDrive(null, email)
+  if (!drive) drive = await getDrive(null, userId)
 
   try {
     // Search for the file
     const res = await drive.files.list({
-      q: `name='${fileName}'`,
+      q: `name='${fileName}' and '${folderId}' in parents and trashed=false and mimeType='text/plain'`,
       fields: 'files(id)',
       spaces: 'drive',
     })
@@ -168,10 +167,10 @@ export async function getFile(email, fileName, drive) {
   }
 }
 
-export async function getFiles(email) {
-  if (!email) throw new Error('User email is required to retrieve tokens.')
+export async function getFiles(userId) {
+  if (!userId) throw new Error('User email is required to retrieve tokens.')
 
-  const tokens = await getUser(email)
+  const tokens = await getUser(userId)
 
   // checking tokens
   if (!tokens) {
@@ -181,7 +180,7 @@ export async function getFiles(email) {
 
   const drive = await getDrive(tokens)
 
-  let folderId = await getFolderId(email, drive)
+  let folderId = await getFolderId(userId, drive)
   let filesResponse
 
   try {
@@ -193,7 +192,7 @@ export async function getFiles(email) {
       })
     } catch (error) {
       if (error.message.startsWith('File not found')) {
-        folderId = await queryFolderId(email, drive)
+        folderId = await queryFolderId(userId, drive)
         filesResponse = await drive.files.list({
           q: `'${folderId}' in parents and trashed=false and mimeType='text/plain'`,
           fields: 'files(id, name)',
@@ -215,9 +214,9 @@ export async function getFiles(email) {
   return files
 }
 
-export async function getDrive(credentials, email = null) {
+export async function getDrive(credentials, userId = null) {
   if (!credentials) {
-    credentials = await getUser(email)
+    credentials = await getUser(userId)
   }
 
   try {
@@ -240,3 +239,87 @@ googleAuth.on('tokens', tokens => {
   }
   //console.log('access_token', tokens)
 })
+
+export async function createFile(userId, fileName, text) {
+  // Fetch user's tokens from Firestore
+  const userRef = db.collection('users').doc(userId)
+  const userSnapshot = await userRef.get()
+
+  if (!userSnapshot.exists)
+    throw new Error('No tokens found for the given user.')
+
+  const tokens = userSnapshot.data()
+
+  const drive = await getDrive(tokens)
+
+  let folderId = await getFolderId(userId, drive)
+
+  // Create a new file in the folder
+  const fileResponse = drive.files.create({
+    media: {
+      mimeType: 'text/plain',
+      body: text,
+    },
+    requestBody: {
+      name: fileName,
+      fields: 'id',
+
+      parents: [folderId],
+    },
+  })
+
+  if (!fileResponse || !fileResponse.data || !fileResponse.data.id)
+    throw new Error(
+      `File could not be created. Error: ${fileResponse}, userId: ${userId}, fileName: ${fileName}, text: ${text}`
+    )
+
+  const fileId = fileResponse.data.id
+
+  // Add the file to the folder
+  await drive.files.update({
+    fileId,
+    addParents: folderId,
+    removeParents: null,
+    fields: 'id, parents',
+  })
+
+  return fileName
+}
+
+export async function getUserId(email) {
+  // This is a conceptual example. Replace with your actual backend setup.
+  const clerkSecretKey = process.env.CLERK_SECRET_KEY // Make sure to store this securely!
+
+  try {
+    const response = await fetch(
+      `https://api.clerk.com/v1/users?email_address=${encodeURIComponent(
+        email
+      )}`,
+      {
+        headers: {
+          Authorization: `Bearer ${clerkSecretKey}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+
+    if (!response.ok) {
+      const errorData = await response.json()
+      throw new Error(
+        `Clerk API error: ${response.status} - ${errorData.errors[0].message}`
+      )
+    }
+
+    const data = await response.json()
+
+    if (data.length > 0) {
+      // Assuming email addresses are unique, the first user in the list is the one.
+      return data[0].id
+    } else {
+      return null // User not found with that email
+    }
+  } catch (error) {
+    console.error('Error fetching user ID:', error)
+    throw error // Re-throw or handle as needed
+  }
+}
