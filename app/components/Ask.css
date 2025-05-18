@@ -1,11 +1,29 @@
 @import 'tailwindcss';
 
 .user-message {
-  @apply text-black bg-white rounded-md px-4 py-3 ml-6 self-end;
+  @apply pl-6 self-end;
+}
+
+.user-message > div {
+  @apply bg-white;
+}
+
+.user-message:hover .message-options {
+  @apply block right-full mr-2;
+  background-color: white !important;
 }
 
 .ai-message {
-  @apply text-white bg-black rounded-md px-4 py-3 mr-6 self-start;
+  @apply pr-8 self-start;
+}
+
+.ai-message > div {
+  @apply bg-[#ebd0e3];
+}
+
+.ai-message:hover .message-options {
+  @apply block left-full ml-2;
+  background-color: #ebd0e3 !important;
 }
 
 .grow-animation > div:first-child {

@@ -152,7 +152,8 @@
 
 .close-animation > h3,
 .close-animation > div {
-  animation: hide-animation 0.5s ease-in-out forwards;
+  animation: hide-animation 0.2s ease-in-out forwards;
+  overflow: hidden;
 }
 
 @keyframes close-animation {

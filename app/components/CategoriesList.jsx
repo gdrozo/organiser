@@ -58,7 +58,7 @@ export default function CategoriesList() {
         fetchState?.map(category => (
           <Button
             key={category}
-            className='gap-1 text-gray-800 ml-0 pl-0 hover:text-gray-600 cursor-pointer text-base flex items-center bg-transparent hover:bg-transparent shadow-none'
+            className='justify-start gap-1 max-w-44 w-44 text-gray-800 ml-0 pl-0 hover:text-gray-600 cursor-pointer text-base flex items-center bg-transparent hover:bg-transparent shadow-none'
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
@@ -70,11 +70,10 @@ export default function CategoriesList() {
               strokeWidth='2'
               strokeLinecap='round'
               strokeLinejoin='round'
-              className='size-4'
             >
-              <rect width='8' height='18' x='3' y='3' rx='1' />
-              <path d='M7 3v18' />
-              <path d='M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z' />
+              <path d='M21 12H9' />
+              <path d='M21 18H7' />
+              <path d='M21 6H3' />
             </svg>
             <div className=''>{category}</div>
           </Button>
